@@ -1,6 +1,5 @@
 from fastapi import FastAPI
-from app.routes import utilisateur
-from app.routes import role,theme,regime,allergene,type_plat,horaire,contact,menu,plat, image_menu,commande,historique_statut,avis,auth
+from app.routes import utilisateur,role,theme,regime,allergene,type_plat,horaire,contact,menu,plat, image_menu,commande,historique_statut,avis,auth,stats
 
 app = FastAPI(title="Vite & Gourmand API")
 
@@ -19,6 +18,8 @@ app.include_router(commande.router)
 app.include_router(historique_statut.router)
 app.include_router(avis.router)
 app.include_router(auth.router)
+app.include_router(stats.router)
+
 
 @app.get("/")
 def root():

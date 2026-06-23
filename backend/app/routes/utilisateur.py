@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.utilisateur import Utilisateur, UtilisateurCreate
 from app.crud import utilisateur as utilisateur_crud
+from app.utils.mail import mail_bienvenue
 
 router = APIRouter(prefix="/utilisateurs", tags=["utilisateurs"])
 
@@ -10,9 +11,21 @@ router = APIRouter(prefix="/utilisateurs", tags=["utilisateurs"])
 def read_utilisateurs(db: Session = Depends(get_db)):
     return utilisateur_crud.get_utilisateurs(db)
 
+@router.get("/{utilisateur_id}", response_model=Utilisateur)
+def read_utilisateur(utilisateur_id: int, db: Session = Depends(get_db)):
+    utilisateur = utilisateur_crud.get_utilisateur(db, utilisateur_id)
+    if utilisateur is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Utilisateur non trouvé"
+        )
+    return utilisateur
+
 @router.post("/", response_model=Utilisateur)
 def create_utilisateur(utilisateur: UtilisateurCreate, db: Session = Depends(get_db)):
     existing = utilisateur_crud.get_utilisateur_by_email(db, utilisateur.email)
     if existing:
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
-    return utilisateur_crud.create_utilisateur(db, utilisateur)
+    nouvel_utilisateur = utilisateur_crud.create_utilisateur(db, utilisateur)
+    mail_bienvenue(nouvel_utilisateur.email, nouvel_utilisateur.prenom)
+    return nouvel_utilisateur

@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app.database import Base
 from datetime import datetime, timezone
+from sqlalchemy.orm import relationship
+
 
 class Utilisateur(Base):
     __tablename__ = "utilisateur"
@@ -16,3 +18,4 @@ class Utilisateur(Base):
     actif = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     role_id = Column(Integer, ForeignKey("role.id"), nullable=False)
+    role = relationship("Role")
