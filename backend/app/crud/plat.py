@@ -6,10 +6,8 @@ from app.schemas.plat import PlatCreate
 def get_plats(db: Session):
     return db.query(Plat).all()
 
-
-def get_plat_by_id(db: Session, plat_id: int):
+def get_plat(db: Session, plat_id: int):
     return db.query(Plat).filter(Plat.id == plat_id).first()
-
 
 def create_plat(db: Session, plat: PlatCreate):
     db_plat = Plat(**plat.dict())
