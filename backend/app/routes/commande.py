@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.commande import Commande, CommandeCreate
 from app.crud import commande as commande_crud
 from app.utils.dependencies import get_current_user
 from app.models.utilisateur import Utilisateur
+from app.utils.mail import mail_confirmation_commande
 
 router = APIRouter(prefix="/commandes", tags=["commandes"])
 
@@ -18,4 +19,10 @@ def create_commande(
     db: Session = Depends(get_db),
     current_user: Utilisateur = Depends(get_current_user)
 ):
-    return commande_crud.create_commande(db, commande)
+    nouvelle_commande = commande_crud.create_commande(db, commande)
+    mail_confirmation_commande(
+        current_user.email,
+        current_user.prenom,
+        nouvelle_commande.id
+    )
+    return nouvelle_commande
