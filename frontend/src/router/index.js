@@ -35,6 +35,11 @@ const routes = [
     path: '/commande',
     name: 'Commande',
     component: () => import('../views/Commande.vue')
+    },
+    {
+    path: '/mes-commandes',
+    name: 'MesCommandes',
+    component: () => import('../views/MesCommandes.vue')
     }
 ]
 
@@ -42,5 +47,6 @@ const router = createRouter({
     history: createWebHistory(),
     routes
 })
+
 
 export default router
