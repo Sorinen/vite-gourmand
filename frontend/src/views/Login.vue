@@ -31,7 +31,7 @@
 </div>
 </template>
 
-<script>
+<script setup>
 import {
     ref
 } from 'vue'

@@ -24,7 +24,7 @@ def create_commande(
     db: Session = Depends(get_db),
     current_user: Utilisateur = Depends(get_current_user)
 ):
-    menu = get_menu_by_id(db, commande.menu_id)
+    menu = get_menu(db, commande.menu_id)
 
     if not menu:
         raise HTTPException(
