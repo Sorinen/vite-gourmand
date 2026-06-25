@@ -11,6 +11,16 @@ router = APIRouter(prefix="/utilisateurs", tags=["utilisateurs"])
 def read_utilisateurs(db: Session = Depends(get_db)):
     return utilisateur_crud.get_utilisateurs(db)
 
+@router.get("/{utilisateur_id}", response_model=Utilisateur)
+def read_utilisateur(utilisateur_id: int, db: Session = Depends(get_db)):
+    utilisateur = utilisateur_crud.get_utilisateur(db, utilisateur_id)
+    if utilisateur is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Utilisateur non trouvé"
+        )
+    return utilisateur
+
 @router.post("/", response_model=Utilisateur)
 def create_utilisateur(utilisateur: UtilisateurCreate, db: Session = Depends(get_db)):
     existing = utilisateur_crud.get_utilisateur_by_email(db, utilisateur.email)
