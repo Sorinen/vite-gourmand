@@ -8,8 +8,8 @@ state: () => ({
 
 getters: {
     isAuthenticated: (state) => !!state.token,
-    isAdmin: (state) => state.user?.role === 'Administrateur',
-    isEmploye: (state) => state.user?.role === 'employé'
+    isAdmin: (state) => state.user?.role_id === 1,
+    isEmploye: (state) => state.user?.role_id === 2,
 },
 
 actions: {

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
 
 const routes = [
     {
@@ -40,7 +41,17 @@ const routes = [
     path: '/mes-commandes',
     name: 'MesCommandes',
     component: () => import('../views/MesCommandes.vue')
-    }
+    },
+    {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('../views/404.vue')
+    },
+    {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('../views/Admin.vue')
+}
 ]
 
 const router = createRouter({
@@ -48,5 +59,29 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore()
+    const pagesProtegees = ['/commande', '/mes-commandes']
+
+    if (pagesProtegees.includes(to.path) && !authStore.isAuthenticated) {
+    next('/login')
+    } else {
+    next()
+    }
+})
+
+router.beforeEach((to, from, next) => {
+const authStore = useAuthStore()
+const pagesProtegees = ['/commande', '/mes-commandes']
+const pagesAdmin = ['/admin']
+
+    if (pagesProtegees.includes(to.path) && !authStore.isAuthenticated) {
+    next('/login')
+    } else if (pagesAdmin.includes(to.path) && !authStore.isAdmin) {
+    next('/')
+    } else {
+    next()
+    }
+})
 
 export default router

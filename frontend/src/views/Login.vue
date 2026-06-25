@@ -54,20 +54,20 @@ const showPassword = ref(false)
 async function login() {
     erreur.value = ''
     chargement.value = true
-
     try {
         const formData = new FormData()
         formData.append('username', email.value)
         formData.append('password', motDePasse.value)
-
         const res = await api.post('/auth/login', formData)
         authStore.setToken(res.data.access_token)
-
         const userRes = await api.get('/utilisateurs/')
         const user = userRes.data.find(u => u.email === email.value)
         authStore.setUser(user)
-
-        router.push('/')
+        if (authStore.isAdmin) {
+            router.push('/admin')
+        } else {
+            router.push('/')
+        }
     } catch (e) {
         erreur.value = 'Email ou mot de passe incorrect'
     } finally {
