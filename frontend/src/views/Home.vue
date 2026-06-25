@@ -24,12 +24,13 @@
     <!-- Horaires -->
     <section class="horaires">
         <h2>Nos horaires</h2>
-        <div v-if="horaires.length > 0">
-            <div class="horaire-item" v-for="horaire in horaires" :key="horaire.id">
-                <span class="jour">{{ horaire.jour }}</span>
-                <span v-if="!horaire.ferme">{{ horaire.heure_ouverture }} - {{ horaire.heure_fermeture }}</span>
-                <span v-else class="ferme">Fermé</span>
-            </div>
+        <div class="horaire-item">
+            <span class="jour">Lundi — Vendredi</span>
+            <span>08h00 - 18h00</span>
+            <span class="jour">Samedi</span>
+            <span>08h00 - 16h00</span>
+            <span class="jour">Dimanche</span>
+            <span class="ferme">Fermé</span>
         </div>
     </section>
 </div>
@@ -44,6 +45,11 @@ import api from '../services/api'
 
 const menus = ref([])
 const horaires = ref([])
+
+function formaterHeure(heure) {
+    if (!heure) return ''
+    return heure.substring(0, 5).replace(':', 'h')
+}
 
 onMounted(async () => {
     try {
@@ -150,18 +156,10 @@ onMounted(async () => {
 .horaire-item {
     display: flex;
     justify-content: space-between;
-    max-width: 400px;
+    max-width: 600px;
     margin: 0.5rem auto;
     padding: 0.5rem 1rem;
-    background: white;
     border-radius: 4px;
 }
 
-.jour {
-    font-weight: bold;
-}
-
-.ferme {
-    color: #1D9E75;
-}
 </style>

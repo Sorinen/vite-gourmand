@@ -31,3 +31,32 @@ def create_menu(
     current_user=Depends(require_role("Administrateur", "employé"))
 ):
     return menu_crud.create_menu(db, menu)
+
+@router.put("/{menu_id}", response_model=Menu)
+def update_menu(
+    menu_id: int,
+    menu_data: MenuCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Administrateur", "employé"))
+):
+    menu = menu_crud.get_menu(db, menu_id)
+    if not menu:
+        raise HTTPException(status_code=404, detail="Menu non trouvé")
+    for key, value in menu_data.dict().items():
+        setattr(menu, key, value)
+    db.commit()
+    db.refresh(menu)
+    return menu
+
+@router.delete("/{menu_id}")
+def delete_menu(
+    menu_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("Administrateur", "employé"))
+):
+    menu = menu_crud.get_menu(db, menu_id)
+    if not menu:
+        raise HTTPException(status_code=404, detail="Menu non trouvé")
+    db.delete(menu)
+    db.commit()
+    return {"message": "Menu supprimé avec succès"}

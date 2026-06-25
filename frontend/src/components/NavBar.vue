@@ -7,6 +7,10 @@
         <RouterLink to="/">Accueil</RouterLink>
         <RouterLink to="/menus">Nos Menus</RouterLink>
         <RouterLink to="/contact">Contact</RouterLink>
+        <RouterLink to="/mes-commandes" v-if="authStore.isAuthenticated">Mes commandes</RouterLink>
+        <RouterLink to="/avis" v-if="authStore.isAuthenticated && !authStore.isAdmin">Laisser un avis</RouterLink>
+        <RouterLink to="/admin" v-if="authStore.isAdmin">Dashboard</RouterLink>
+        <RouterLink to="/employe" v-if="authStore.isEmploye">Dashboard</RouterLink>
         <button class="bouton" to="/login" v-if="!authStore.isAuthenticated" @click="router.push('/login')">Connexion</button>
         <button class="btn" v-if="authStore.isAuthenticated" @click="logout">Déconnexion</button>
     </div>
@@ -28,6 +32,7 @@ function logout() {
     authStore.logout()
     router.push('/')
 }
+
 </script>
 
 <style scoped>
