@@ -1,21 +1,6 @@
 <template>
-<div class="admin-page">
-    <h1>Dashboard Admin</h1>
-        <div class="nav-admin">
-    <RouterLink to="/admin/menus" class="btn-nav">🍽️ Gérer les menus</RouterLink>
-    </div>
-
-    <div class="stats-section">
-        <h2>Statistiques des commandes</h2>
-        <div v-if="stats.length > 0" class="stats-grid">
-            <div class="stat-card" v-for="stat in stats" :key="stat._id">
-                <h3>{{ stat.menu_titre }}</h3>
-                <p class="nombre">{{ stat.nombre_commandes }} commandes</p>
-                <p class="ca">{{ stat.chiffre_affaires }}€ de CA</p>
-            </div>
-        </div>
-        <p v-else>Aucune statistique disponible.</p>
-    </div>
+<div class="employe-page">
+    <h1>Espace Employé</h1>
 
     <div class="commandes-section">
         <h2>Gestion des commandes</h2>
@@ -26,7 +11,6 @@
                     <span>{{ commande.date_prestation }}</span>
                     <span>{{ commande.nombre_personnes }} pers.</span>
                     <span>{{ commande.prix_total }}€</span>
-                    <RouterLink to="/admin/menus" class="btn-nav">🍽️ Gérer les menus</RouterLink>
                 </div>
                 <div class="commande-statut">
                     <select v-model="commande.statut" @change="changerStatut(commande)">
@@ -40,6 +24,7 @@
         </div>
         <p v-else>Aucune commande.</p>
     </div>
+
     <div class="avis-section">
         <h2>Gestion des avis</h2>
         <div v-if="avis.length > 0">
@@ -75,21 +60,13 @@ import api from '../services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const stats = ref([])
 const commandes = ref([])
 const avis = ref([])
 
 onMounted(async () => {
-    if (!authStore.isAdmin) {
+    if (!authStore.isEmploye && !authStore.isAdmin) {
         router.push('/')
         return
-    }
-
-    try {
-        const res = await api.get('/admin/stats/commandes-par-menu')
-        stats.value = res.data
-    } catch (e) {
-        console.error('Erreur stats', e)
     }
 
     try {
@@ -137,7 +114,7 @@ async function supprimerAvis(id) {
 </script>
 
 <style scoped>
-.admin-page {
+.employe-page {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
@@ -154,42 +131,6 @@ h2 {
     margin-bottom: 1.5rem;
     border-bottom: 2px solid #1D9E75;
     padding-bottom: 0.5rem;
-}
-
-.stats-section {
-    margin-bottom: 3rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1.5rem;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    border-top: 4px solid #1D9E75;
-}
-
-.stat-card h3 {
-    color: #085041;
-    margin-bottom: 0.5rem;
-    font-size: 0.95rem;
-}
-
-.nombre {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #1D9E75;
-}
-
-.ca {
-    color: #666;
-    font-size: 0.9rem;
 }
 
 .commandes-section {
@@ -268,20 +209,5 @@ h2 {
     border-radius: 4px;
     cursor: pointer;
     width: auto;
-}
-
-.nav-admin {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.btn-nav {
-    background: #085041;
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: bold;
 }
 </style>

@@ -45,7 +45,6 @@ import api from '../services/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
 const email = ref('')
 const motDePasse = ref('')
 const erreur = ref('')
@@ -65,6 +64,8 @@ async function login() {
         authStore.setUser(user)
         if (authStore.isAdmin) {
             router.push('/admin')
+        } else if (authStore.isEmploye) {
+            router.push('/employe')
         } else {
             router.push('/')
         }
