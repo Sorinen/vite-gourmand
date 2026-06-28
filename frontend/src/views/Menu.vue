@@ -34,6 +34,15 @@
             <p>{{ menuSelectionne.description }}</p>
             <p class="prix">À partir de {{ menuSelectionne.prix_base }}€ / personne</p>
             <p class="min">Minimum {{ menuSelectionne.nombre_personnes_min }} personnes</p>
+
+            <div class="avis-section" v-if="avisValides.length > 0">
+                <h3>Avis clients</h3>
+                <div class="avis-item" v-for="a in avisValides.slice(0, 3)" :key="a.id">
+                    <div class="etoiles">{{ '★'.repeat(a.note) }}{{ '☆'.repeat(5 - a.note) }}</div>
+                    <p>{{ a.commentaire }}</p>
+                </div>
+            </div>
+
             <div class="modal-actions">
                 <RouterLink v-if="authStore.isAuthenticated" to="/commande" class="btn-commander">
                     Commander ce menu
@@ -62,6 +71,7 @@ const authStore = useAuthStore()
 const menus = ref([])
 const themes = ref([])
 const regimes = ref([])
+const avis = ref([])
 const filtreTheme = ref('')
 const filtreRegime = ref('')
 const menuSelectionne = ref(null)
@@ -72,6 +82,10 @@ const menusFiltres = computed(() => {
         const matchRegime = filtreRegime.value === '' || menu.regime_id === Number(filtreRegime.value)
         return matchTheme && matchRegime
     })
+})
+
+const avisValides = computed(() => {
+    return avis.value.filter(a => a.statut === 'valide')
 })
 
 function ouvrirModal(menu) {
@@ -101,6 +115,12 @@ onMounted(async () => {
     } catch (e) {
         console.error('Erreur regimes', e)
     }
+    try {
+        const res = await api.get('/avis/')
+        avis.value = res.data
+    } catch (e) {
+        console.error('Erreur avis', e)
+    }
 })
 </script>
 
@@ -123,6 +143,7 @@ h1 {
     gap: 1rem;
     justify-content: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 .filtres select {
@@ -191,6 +212,8 @@ h1 {
     max-width: 500px;
     width: 90%;
     position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .modal h2 {
@@ -210,6 +233,30 @@ h1 {
     color: #333;
 }
 
+.avis-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.avis-section h3 {
+    color: #085041;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.avis-item {
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.etoiles {
+    color: #f5a623;
+    margin-bottom: 0.3rem;
+}
+
 .modal-actions {
     margin-top: 1.5rem;
 }
@@ -221,5 +268,20 @@ h1 {
     border-radius: 4px;
     text-decoration: none;
     font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .menus-page {
+        padding: 1rem;
+    }
+
+    .menus-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filtres {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 </style>
