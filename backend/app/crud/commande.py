@@ -1,34 +1,21 @@
 from sqlalchemy.orm import Session
-from app.models.commande import Commande
-from app.schemas.commande import CommandeCreate
+from app.models.contact import Contact
+from app.schemas.contact import ContactCreate
 
-def get_commandes(db: Session):
-    return db.query(Commande).all()
+def get_contacts(db: Session):
+    return db.query(Contact).all()
 
-def get_commande(db: Session, commande_id: int):
-    return db.query(Commande).filter(Commande.id == commande_id).first()
+def get_contact(db: Session, contact_id: int):
+    return db.query(Contact).filter(Contact.id == contact_id).first()
 
-def get_commande_by_utilisateur_id(db: Session, utilisateur_id: int):
-    return db.query(Commande).filter(Commande.utilisateur_id == utilisateur_id).first()
-
-
-def create_commande(db: Session, commande: CommandeCreate):
-    db_commande = Commande(
-        date_prestation=commande.date_prestation,
-        heure_livraison=commande.heure_livraison,
-        adresse_livraison=commande.adresse_livraison,
-        nombre_personnes=commande.nombre_personnes,
-        prix_menu=commande.prix_menu,
-        prix_livraison=commande.prix_livraison,
-        prix_total=commande.prix_total,
-        statut=commande.statut,
-        motif_annulation=commande.motif_annulation,
-        mode_contact=commande.mode_contact,
-        pret_materiel=commande.pret_materiel,
-        utilisateur_id=commande.utilisateur_id,
-        menu_id=commande.menu_id
+def create_contact(db: Session, contact: ContactCreate):
+    db_contact = Contact(
+        nom=contact.nom,
+        email=contact.email,
+        telephone=contact.telephone,
+        message=contact.message
     )
-    db.add(db_commande)
+    db.add(db_contact)
     db.commit()
-    db.refresh(db_commande)
-    return db_commande  
+    db.refresh(db_contact)
+    return db_contact
