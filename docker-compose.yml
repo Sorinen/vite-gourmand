@@ -19,7 +19,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/vite_gourmand
       MONGO_URL: mongodb://mongo:27017
-      SECRET_KEY: change_this_in_production
+      SECRET_KEY: ViteGourmand2026SecretKeyProduction
     depends_on:
       - postgres
       - mongo
