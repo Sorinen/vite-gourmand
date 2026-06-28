@@ -1,8 +1,8 @@
 <template>
 <div class="admin-page">
     <h1>Dashboard Admin</h1>
-        <div class="nav-admin">
-    <RouterLink to="/admin/menus" class="btn-nav">🍽️ Gérer les menus</RouterLink>
+    <div class="nav-admin">
+        <RouterLink to="/admin/menus" class="btn-nav">🍽️ Gérer les menus</RouterLink>
     </div>
 
     <div class="stats-section">
@@ -26,7 +26,6 @@
                     <span>{{ commande.date_prestation }}</span>
                     <span>{{ commande.nombre_personnes }} pers.</span>
                     <span>{{ commande.prix_total }}€</span>
-                    <RouterLink to="/admin/menus" class="btn-nav">🍽️ Gérer les menus</RouterLink>
                 </div>
                 <div class="commande-statut">
                     <select v-model="commande.statut" @change="changerStatut(commande)">
@@ -40,6 +39,7 @@
         </div>
         <p v-else>Aucune commande.</p>
     </div>
+
     <div class="avis-section">
         <h2>Gestion des avis</h2>
         <div v-if="avis.length > 0">
@@ -56,6 +56,21 @@
             </div>
         </div>
         <p v-else>Aucun avis en attente.</p>
+    </div>
+
+    <div class="contacts-section">
+        <h2>Messages de contact</h2>
+        <div v-if="contacts.length > 0">
+            <div class="contact-card" v-for="c in contacts" :key="c.id">
+                <div class="contact-header">
+                    <span class="contact-nom">{{ c.nom }}</span>
+                    <span class="contact-email">{{ c.email }}</span>
+                    <span v-if="c.telephone" class="contact-tel">{{ c.telephone }}</span>
+                </div>
+                <p class="contact-message">{{ c.message }}</p>
+            </div>
+        </div>
+        <p v-else class="vide">✅ Aucun message de contact.</p>
     </div>
 </div>
 </template>
@@ -78,6 +93,7 @@ const authStore = useAuthStore()
 const stats = ref([])
 const commandes = ref([])
 const avis = ref([])
+const contacts = ref([])
 
 onMounted(async () => {
     if (!authStore.isAdmin) {
@@ -104,6 +120,13 @@ onMounted(async () => {
         avis.value = res.data.filter(a => a.statut === 'en_attente')
     } catch (e) {
         console.error('Erreur avis', e)
+    }
+
+    try {
+        const res = await api.get('/contact/')
+        contacts.value = res.data
+    } catch (e) {
+        console.error('Erreur contacts', e)
     }
 })
 
@@ -136,7 +159,7 @@ async function supprimerAvis(id) {
 }
 </script>
 
-<style scoped>
+<style>
 .admin-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -154,6 +177,21 @@ h2 {
     margin-bottom: 1.5rem;
     border-bottom: 2px solid #1D9E75;
     padding-bottom: 0.5rem;
+}
+
+.nav-admin {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.btn-nav {
+    background: #085041;
+    color: white;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 .stats-section {
@@ -205,12 +243,15 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .commande-header {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .commande-id {
@@ -270,18 +311,62 @@ h2 {
     width: auto;
 }
 
-.nav-admin {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+.contacts-section {
+    margin-bottom: 3rem;
 }
 
-.btn-nav {
-    background: #085041;
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border-radius: 4px;
-    text-decoration: none;
+.contact-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.contact-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 0.8rem;
     font-weight: bold;
+    flex-wrap: wrap;
+}
+
+.contact-nom {
+    color: #085041;
+}
+
+.contact-email {
+    color: #1D9E75;
+}
+
+.contact-tel {
+    color: #666;
+}
+
+.contact-message {
+    color: #444;
+    font-size: 0.95rem;
+    border-left: 3px solid #1D9E75;
+    padding-left: 1rem;
+}
+
+@media (max-width: 768px) {
+    .admin-page {
+        padding: 1rem;
+    }
+
+    .commande-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .commande-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
