@@ -11,7 +11,11 @@ Application web de traiteur événementiel à La Réunion.
 
 ## 📋 Description
 
-Vite & Gourmand est une application fullstack permettant de gérer les commandes d'un service traiteur événementiel à La Réunion. Elle permet aux clients de consulter les menus, passer des commandes, et laisser des avis. Les administrateurs et employés disposent d'un espace de gestion complet.
+## 📋 Description
+
+Vite & Gourmand est une application web fullstack développée pour Julie et José, un couple de traiteurs événementiels basés à Bordeaux. 
+
+L'application permet à leurs clients de consulter les menus proposés, passer des commandes en ligne pour leurs événements (mariages, anniversaires, séminaires...), et laisser des avis après prestation. Julie et José disposent d'un espace d'administration complet pour gérer leurs commandes, menus et clients.
 
 ---
 
