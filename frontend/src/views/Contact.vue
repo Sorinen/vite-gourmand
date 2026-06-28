@@ -17,7 +17,7 @@
             </div>
             <div class="champ">
                 <label>Téléphone</label>
-                <input type="text" v-model="telephone" placeholder="0692000000" />
+                <input type="text" v-model="telephone" placeholder="06 92 12 34 56" />
             </div>
             <div class="champ">
                 <label>Message</label>

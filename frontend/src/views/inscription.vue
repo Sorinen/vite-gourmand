@@ -8,17 +8,17 @@
 
             <form @submit.prevent="register">
                 <div class="champ">
-                    <label>Prénom</label>
+                    <label>Prénom*</label>
                     <input v-model="prenom" type="text" required placeholder="Votre prénom" />
                 </div>
 
                 <div class="champ">
-                    <label>Nom</label>
+                    <label>Nom*</label>
                     <input v-model="nom" type="text" required placeholder="Votre nom" />
                 </div>
 
                 <div class="champ">
-                    <label>Email</label>
+                    <label>Email*</label>
                     <input v-model="email" type="email" required placeholder="votre@email.com" />
                 </div>
 
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="champ">
-                    <label>Mot de passe</label>
+                    <label>Mot de passe*</label>
                     <div class="input-password">
                         <input
                             :type="showPassword ? 'text' : 'password'"
@@ -43,7 +43,7 @@
                 </div>
 
                 <div class="champ">
-                    <label>Confirmer le mot de passe</label>
+                    <label>Confirmer le mot de passe*</label>
                     <div class="input-password">
                         <input
                             :type="showConfirm ? 'text' : 'password'"
