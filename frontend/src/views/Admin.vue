@@ -68,6 +68,20 @@
                     <span v-if="c.telephone" class="contact-tel">{{ c.telephone }}</span>
                 </div>
                 <p class="contact-message">{{ c.message }}</p>
+
+                <!-- Formulaire de réponse -->
+                <div v-if="contactReponse === c.id" class="reponse-form">
+                    <textarea v-model="texteReponse" rows="4" placeholder="Votre réponse..."></textarea>
+                    <div class="reponse-actions">
+                        <button @click="envoyerReponse(c)" class="btn-valider">📧 Envoyer</button>
+                        <button @click="contactReponse = null" class="btn-annuler">Annuler</button>
+                    </div>
+                </div>
+
+                <div class="contact-actions">
+                    <button @click="ouvrirReponse(c.id)" class="btn-repondre">✉️ Répondre</button>
+                    <button @click="supprimerContact(c.id)" class="btn-refuser">🗑️ Supprimer</button>
+                </div>
             </div>
         </div>
         <p v-else class="vide">✅ Aucun message de contact.</p>
@@ -94,6 +108,8 @@ const stats = ref([])
 const commandes = ref([])
 const avis = ref([])
 const contacts = ref([])
+const contactReponse = ref(null)
+const texteReponse = ref('')
 
 onMounted(async () => {
     if (!authStore.isAdmin) {
@@ -157,9 +173,32 @@ async function supprimerAvis(id) {
         console.error('Erreur suppression avis', e)
     }
 }
+
+function ouvrirReponse(id) {
+    contactReponse.value = id
+    texteReponse.value = ''
+}
+
+async function envoyerReponse(contact) {
+    if (!texteReponse.value.trim()) return
+    const mailtoLink = `mailto:${contact.email}?subject=Réponse à votre message - Vite & Gourmand&body=${encodeURIComponent(texteReponse.value)}`
+    window.open(mailtoLink)
+    contactReponse.value = null
+    texteReponse.value = ''
+}
+
+async function supprimerContact(id) {
+    if (!confirm('Supprimer ce message ?')) return
+    try {
+        await api.delete(`/contact/${id}`)
+        contacts.value = contacts.value.filter(c => c.id !== id)
+    } catch (e) {
+        console.error('Erreur suppression contact', e)
+    }
+}
 </script>
 
-<style>
+<style scoped>
 .admin-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -348,6 +387,53 @@ h2 {
     font-size: 0.95rem;
     border-left: 3px solid #1D9E75;
     padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn-repondre {
+    background: #1D9E75;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+}
+
+.reponse-form {
+    margin-top: 1rem;
+}
+
+.reponse-form textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.reponse-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.btn-annuler {
+    background: #666;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
 }
 
 @media (max-width: 768px) {
@@ -367,6 +453,12 @@ h2 {
 
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .contact-actions,
+    .avis-actions,
+    .reponse-actions {
+        flex-direction: column;
     }
 }
 </style>
