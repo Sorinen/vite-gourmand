@@ -87,4 +87,81 @@ function logout() {
     cursor: pointer;
     font-size: 1rem;
 }
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #085041;
+    color: white;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.navbar-brand a {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.navbar-links a:hover {
+    text-decoration: underline;
+}
+
+.navbar-links button {
+    background: white;
+    color: #085041;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.navbar-links .bouton {
+    background: #1D9E75;
+    color: white;
+}
+
+.navbar-links .btn {
+    background: #ee2b2b;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    }
+
+    .navbar-links {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    }
+
+    .navbar-links a,
+    .navbar-links button {
+    width: 100%;
+    text-align: left;
+    }
+}
+
 </style>
