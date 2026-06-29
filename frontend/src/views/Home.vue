@@ -166,8 +166,8 @@
                     Découvrez nos menus et trouvez la formule idéale pour vos invités.
                 </p>
 
-                <RouterLink to="/menus" class="btn-light">
-                    Voir tous les menus
+                <RouterLink to="/menus" class="btn-card">
+                    Voir le menu
                 </RouterLink>
             </div>
         </section>
