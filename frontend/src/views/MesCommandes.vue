@@ -7,6 +7,7 @@
           <span class="commande-id">#{{ commande.id }}</span>
           <span :class="['statut', commande.statut]">{{ commande.statut.replace('_', ' ') }}</span>
         </div>
+        <p><strong>Menu :</strong> {{ getNomMenu(commande.menu_id) }}</p>
         <p><strong>Date :</strong> {{ commande.date_prestation }}</p>
         <p><strong>Adresse :</strong> {{ commande.adresse_livraison }}</p>
         <p><strong>Personnes :</strong> {{ commande.nombre_personnes }}</p>
@@ -26,6 +27,12 @@ import api from '../services/api'
 const router = useRouter()
 const authStore = useAuthStore()
 const commandes = ref([])
+const menus = ref([])
+
+function getNomMenu(menuId) {
+  const menu = menus.value.find(m => m.id === menuId)
+  return menu ? menu.titre : 'Menu inconnu'
+}
 
 onMounted(async () => {
   if (!authStore.isAuthenticated) {
@@ -37,6 +44,12 @@ onMounted(async () => {
     commandes.value = res.data.filter(c => c.utilisateur_id === authStore.user.id)
   } catch (e) {
     console.error('Erreur commandes', e)
+  }
+  try {
+    const res = await api.get('/menu/')
+    menus.value = res.data
+  } catch (e) {
+    console.error('Erreur menus', e)
   }
 })
 </script>
