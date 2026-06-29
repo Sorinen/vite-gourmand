@@ -15,6 +15,7 @@
             </option>
         </select>
     </div>
+
     <div class="menus-grid" v-if="menusFiltres.length > 0">
         <div class="menu-card" v-for="menu in menusFiltres" :key="menu.id">
             <h3>{{ menu.titre }}</h3>
@@ -158,7 +159,7 @@ h1 {
 
 .menus-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
 }
 
@@ -167,11 +168,17 @@ h1 {
     border-radius: 8px;
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-card h3 {
     color: #1D9E75;
     margin-bottom: 0.5rem;
+}
+
+.menu-card p {
+    flex: 1;
 }
 
 .prix {
@@ -193,6 +200,7 @@ h1 {
     border-radius: 4px;
     border: none;
     cursor: pointer;
+    margin-top: auto;
 }
 
 .modal-overlay {
@@ -271,6 +279,12 @@ h1 {
     border-radius: 4px;
     text-decoration: none;
     font-weight: bold;
+}
+
+@media (max-width: 1024px) {
+    .menus-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
