@@ -32,9 +32,19 @@
                 <input type="text" v-model="adresseLivraison" required placeholder="123 rue exemple" />
             </div>
 
+            <!-- Livraison -->
             <div class="champ">
-                <label>Ville</label>
-                <input type="text" v-model="ville" required placeholder="Bordeaux" />
+                <label>Livraison</label>
+                <div class="livraison-choix">
+                    <button type="button" :class="['btn-livraison', { actif: livraisonBordeaux }]" @click="livraisonBordeaux = true">
+                        Bordeaux — Gratuit
+                    </button>
+                    <button type="button" :class="['btn-livraison', { actif: !livraisonBordeaux }]" @click="livraisonBordeaux = false">
+                        Hors Bordeaux — +15€
+                    </button>
+                </div>
+                <input v-if="!livraisonBordeaux" type="text" v-model="ville" required placeholder="Nom de votre ville" class="input-ville" />
+                <p v-else class="ville-bordeaux">Bordeaux</p>
             </div>
 
             <div class="champ">
@@ -65,8 +75,8 @@
                 <p>Sous-total menu : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
                 <p v-if="pretMateriel" class="supplement">Location matériel : +15€</p>
                 <p v-else class="inclus">Sans location matériel : 0€</p>
-                <p v-if="prixLivraison > 0" class="supplement">Livraison hors Bordeaux : +15€</p>
-                <p v-else class="inclus">Livraison incluse (Bordeaux) : 0€</p>
+                <p v-if="!livraisonBordeaux" class="supplement">Livraison hors Bordeaux : +15€</p>
+                <p v-else class="inclus">Livraison Bordeaux : Gratuit</p>
                 <p class="total">Total : {{ prixTotal }}€</p>
             </div>
 
@@ -103,6 +113,7 @@ const datePrestation = ref('')
 const heureLivraison = ref('')
 const adresseLivraison = ref('')
 const ville = ref('')
+const livraisonBordeaux = ref(true)
 const nombrePersonnes = ref(1)
 const modeContact = ref('email')
 const pretMateriel = ref(false)
@@ -115,7 +126,7 @@ const menuSelectionne = computed(() => {
 })
 
 const prixLivraison = computed(() => {
-    return ville.value.toLowerCase().trim() !== 'bordeaux' ? 15 : 0
+    return livraisonBordeaux.value ? 0 : 15
 })
 
 const prixLocation = computed(() => {
@@ -125,6 +136,10 @@ const prixLocation = computed(() => {
 const prixTotal = computed(() => {
     if (!menuSelectionne.value) return 0
     return (menuSelectionne.value.prix_base * Number(nombrePersonnes.value)) + prixLivraison.value + prixLocation.value
+})
+
+const villeFinale = computed(() => {
+    return livraisonBordeaux.value ? 'Bordeaux' : ville.value
 })
 
 onMounted(async () => {
@@ -154,11 +169,17 @@ async function passerCommande() {
         return
     }
 
+    if (!livraisonBordeaux.value && !ville.value.trim()) {
+        erreur.value = 'Veuillez saisir votre ville.'
+        chargement.value = false
+        return
+    }
+
     try {
         await api.post('/commandes/', {
             date_prestation: datePrestation.value,
             heure_livraison: heureLivraison.value,
-            adresse_livraison: adresseLivraison.value,
+            adresse_livraison: adresseLivraison.value + ', ' + villeFinale.value,
             nombre_personnes: Number(nombrePersonnes.value),
             prix_menu: menuSelectionne.value.prix_base * Number(nombrePersonnes.value),
             prix_livraison: prixLivraison.value + prixLocation.value,
@@ -227,6 +248,45 @@ h1 {
     margin-right: 0.5rem;
 }
 
+.livraison-choix {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.btn-livraison {
+    flex: 1;
+    padding: 0.7rem;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.btn-livraison.actif {
+    border-color: #1D9E75;
+    background: #f0f9f5;
+    color: #085041;
+    font-weight: bold;
+}
+
+.input-ville {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.ville-bordeaux {
+    color: #1D9E75;
+    font-weight: bold;
+    padding: 0.3rem 0;
+}
+
 .resume {
     background: #f0f9f5;
     padding: 1rem;
@@ -258,7 +318,7 @@ h1 {
     padding-top: 0.5rem;
 }
 
-button {
+button[type="submit"] {
     width: 100%;
     padding: 0.8rem;
     background: #1D9E75;
@@ -270,7 +330,7 @@ button {
     margin-top: 1rem;
 }
 
-button:disabled {
+button[type="submit"]:disabled {
     opacity: 0.6;
 }
 
@@ -295,6 +355,10 @@ button:disabled {
 @media (max-width: 768px) {
     .commande-page {
         padding: 1rem;
+    }
+
+    .livraison-choix {
+        flex-direction: column;
     }
 }
 </style>
