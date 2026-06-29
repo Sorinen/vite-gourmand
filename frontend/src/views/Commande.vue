@@ -53,7 +53,7 @@
             <div class="champ checkbox">
                 <label>
                     <input type="checkbox" v-model="pretMateriel" />
-                    Je fournis le matériel (tables, chaises)
+                    Louer le matériel (tables, chaises) — +15€
                 </label>
             </div>
 
@@ -63,9 +63,9 @@
                 <p>Prix par personne : {{ menuSelectionne.prix_base }}€</p>
                 <p>Nombre de personnes : {{ nombrePersonnes }}</p>
                 <p>Sous-total menu : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
-                <p v-if="!pretMateriel" class="location">Location matériel : +15€</p>
-                <p v-else class="location-offerte">Matériel fourni par le client : 0€</p>
-                <p class="total">Total : {{ (menuSelectionne.prix_base * nombrePersonnes) + (!pretMateriel ? 15 : 0) }}€</p>
+                <p v-if="pretMateriel" class="location">Location matériel : +15€</p>
+                <p v-else class="location-offerte">Sans location matériel : 0€</p>
+                <p class="total">Total : {{ (menuSelectionne.prix_base * nombrePersonnes) + (pretMateriel ? 15 : 0) }}€</p>
             </div>
 
             <button type="submit" :disabled="chargement">
@@ -139,7 +139,7 @@ async function passerCommande() {
         return
     }
 
-    const prixLocation = !pretMateriel.value ? 15 : 0
+    const prixLocation = pretMateriel.value ? 15 : 0
     const prixMenu = menuSelectionne.value.prix_base * Number(nombrePersonnes.value)
 
     try {
