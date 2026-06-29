@@ -88,7 +88,7 @@ const menusFiltres = computed(() => {
 const avisValides = computed(() => {
     if (!menuSelectionne.value) return []
     return avis.value.filter(a =>
-        a.statut === 'valide' && a.menu_id === menuSelectionne.value.id
+    a.statut === 'valide' && Number(a.menu_id) === Number(menuSelectionne.value.id)
     )
 })
 
