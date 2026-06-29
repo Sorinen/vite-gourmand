@@ -40,6 +40,7 @@
 <script setup>
 import {
     ref,
+    computed,
     onMounted
 } from 'vue'
 import {
@@ -60,6 +61,10 @@ const mesCommandes = ref([])
 const succes = ref('')
 const erreur = ref('')
 const chargement = ref(false)
+
+const commandeSelectionnee = computed(() => {
+    return mesCommandes.value.find(c => c.id === Number(commandeId.value))
+})
 
 onMounted(async () => {
     if (!authStore.isAuthenticated) {
@@ -92,7 +97,8 @@ async function soumettreAvis() {
             commentaire: commentaire.value,
             statut: 'en_attente',
             commande_id: Number(commandeId.value),
-            utilisateur_id: authStore.user.id
+            utilisateur_id: authStore.user.id,
+            menu_id: commandeSelectionnee.value ? commandeSelectionnee.value.menu_id : null
         })
         succes.value = 'Votre avis a été envoyé, il sera visible après validation.'
         note.value = 0
