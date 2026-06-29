@@ -63,9 +63,11 @@
                 <p>Prix par personne : {{ menuSelectionne.prix_base }}€</p>
                 <p>Nombre de personnes : {{ nombrePersonnes }}</p>
                 <p>Sous-total menu : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
-                <p v-if="pretMateriel" class="location">Location matériel : +15€</p>
-                <p v-else class="location-offerte">Sans location matériel : 0€</p>
-                <p class="total">Total : {{ (menuSelectionne.prix_base * nombrePersonnes) + (pretMateriel ? 15 : 0) }}€</p>
+                <p v-if="pretMateriel" class="supplement">Location matériel : +15€</p>
+                <p v-else class="inclus">Sans location matériel : 0€</p>
+                <p v-if="prixLivraison > 0" class="supplement">Livraison hors Bordeaux : +15€</p>
+                <p v-else class="inclus">Livraison incluse (Bordeaux) : 0€</p>
+                <p class="total">Total : {{ prixTotal }}€</p>
             </div>
 
             <button type="submit" :disabled="chargement">
@@ -112,6 +114,19 @@ const menuSelectionne = computed(() => {
     return menus.value.find(m => m.id === Number(menuId.value))
 })
 
+const prixLivraison = computed(() => {
+    return ville.value.toLowerCase().trim() !== 'bordeaux' ? 15 : 0
+})
+
+const prixLocation = computed(() => {
+    return pretMateriel.value ? 15 : 0
+})
+
+const prixTotal = computed(() => {
+    if (!menuSelectionne.value) return 0
+    return (menuSelectionne.value.prix_base * Number(nombrePersonnes.value)) + prixLivraison.value + prixLocation.value
+})
+
 onMounted(async () => {
     if (!authStore.isAuthenticated) {
         router.push('/login')
@@ -139,18 +154,15 @@ async function passerCommande() {
         return
     }
 
-    const prixLocation = pretMateriel.value ? 15 : 0
-    const prixMenu = menuSelectionne.value.prix_base * Number(nombrePersonnes.value)
-
     try {
         await api.post('/commandes/', {
             date_prestation: datePrestation.value,
             heure_livraison: heureLivraison.value,
             adresse_livraison: adresseLivraison.value,
             nombre_personnes: Number(nombrePersonnes.value),
-            prix_menu: prixMenu,
-            prix_livraison: prixLocation,
-            prix_total: prixMenu + prixLocation,
+            prix_menu: menuSelectionne.value.prix_base * Number(nombrePersonnes.value),
+            prix_livraison: prixLivraison.value + prixLocation.value,
+            prix_total: prixTotal.value,
             statut: 'en_attente',
             mode_contact: modeContact.value,
             pret_materiel: pretMateriel.value,
@@ -228,12 +240,12 @@ h1 {
     margin-bottom: 0.5rem;
 }
 
-.location {
+.supplement {
     color: #e67e22;
     font-weight: bold;
 }
 
-.location-offerte {
+.inclus {
     color: #1D9E75;
 }
 
@@ -241,8 +253,8 @@ h1 {
     font-weight: bold;
     color: #085041;
     margin-top: 0.5rem;
-    font-size: 1.1rem;
-    border-top: 1px solid #1D9E75;
+    font-size: 1.2rem;
+    border-top: 2px solid #1D9E75;
     padding-top: 0.5rem;
 }
 
