@@ -61,10 +61,11 @@
                 <h3>Résumé</h3>
                 <p>Menu : {{ menuSelectionne.titre }}</p>
                 <p>Prix par personne : {{ menuSelectionne.prix_base }}€</p>
-                <p>Minimum : {{ menuSelectionne.nombre_personnes_min }} personnes</p>
-                <p class="total">Total estimé : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
-                <p v-if="!pretMateriel">Location matériel : 15€</p>
-                <p v-else>Matériel fourni : 0€</p>
+                <p>Nombre de personnes : {{ nombrePersonnes }}</p>
+                <p>Sous-total menu : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
+                <p v-if="!pretMateriel" class="location">Location matériel : +15€</p>
+                <p v-else class="location-offerte">Matériel fourni par le client : 0€</p>
+                <p class="total">Total : {{ (menuSelectionne.prix_base * nombrePersonnes) + (!pretMateriel ? 15 : 0) }}€</p>
             </div>
 
             <button type="submit" :disabled="chargement">
@@ -119,7 +120,6 @@ onMounted(async () => {
     try {
         const res = await api.get('/menu/')
         menus.value = res.data
-        // Pré-remplir le menu si passé en paramètre URL
         if (route.query.menu) {
             menuId.value = Number(route.query.menu)
         }
@@ -139,15 +139,18 @@ async function passerCommande() {
         return
     }
 
+    const prixLocation = !pretMateriel.value ? 15 : 0
+    const prixMenu = menuSelectionne.value.prix_base * Number(nombrePersonnes.value)
+
     try {
         await api.post('/commandes/', {
             date_prestation: datePrestation.value,
             heure_livraison: heureLivraison.value,
             adresse_livraison: adresseLivraison.value,
             nombre_personnes: Number(nombrePersonnes.value),
-            prix_menu: menuSelectionne.value.prix_base * Number(nombrePersonnes.value),
-            prix_livraison: ville.value.toLowerCase() === 'bordeaux' ? 0 : 15,
-            prix_total: (menuSelectionne.value.prix_base * Number(nombrePersonnes.value)) + (ville.value.toLowerCase() === 'bordeaux' ? 0 : 15),
+            prix_menu: prixMenu,
+            prix_livraison: prixLocation,
+            prix_total: prixMenu + prixLocation,
             statut: 'en_attente',
             mode_contact: modeContact.value,
             pret_materiel: pretMateriel.value,
@@ -225,10 +228,22 @@ h1 {
     margin-bottom: 0.5rem;
 }
 
+.location {
+    color: #e67e22;
+    font-weight: bold;
+}
+
+.location-offerte {
+    color: #1D9E75;
+}
+
 .total {
     font-weight: bold;
     color: #085041;
     margin-top: 0.5rem;
+    font-size: 1.1rem;
+    border-top: 1px solid #1D9E75;
+    padding-top: 0.5rem;
 }
 
 button {
