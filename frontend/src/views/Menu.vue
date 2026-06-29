@@ -44,7 +44,7 @@
             </div>
 
             <div class="modal-actions">
-                <RouterLink v-if="authStore.isAuthenticated" to="/commande" class="btn-commander">
+                <RouterLink v-if="authStore.isAuthenticated" :to="`/commande?menu=${menuSelectionne.id}`" class="btn-commander">
                     Commander ce menu
                 </RouterLink>
                 <RouterLink v-else to="/login" class="btn-commander">

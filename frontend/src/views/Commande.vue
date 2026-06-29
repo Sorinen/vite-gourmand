@@ -34,7 +34,7 @@
 
             <div class="champ">
                 <label>Ville</label>
-                <input type="text" v-model="ville" required placeholder="Saint-Denis" />
+                <input type="text" v-model="ville" required placeholder="Bordeaux" />
             </div>
 
             <div class="champ">
@@ -62,6 +62,7 @@
                 <p>Menu : {{ menuSelectionne.titre }}</p>
                 <p>Prix par personne : {{ menuSelectionne.prix_base }}€</p>
                 <p>Minimum : {{ menuSelectionne.nombre_personnes_min }} personnes</p>
+                <p class="total">Total estimé : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
             </div>
 
             <button type="submit" :disabled="chargement">
@@ -79,7 +80,8 @@ import {
     onMounted
 } from 'vue'
 import {
-    useRouter
+    useRouter,
+    useRoute
 } from 'vue-router'
 import {
     useAuthStore
@@ -87,6 +89,7 @@ import {
 import api from '../services/api'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const menus = ref([])
@@ -114,6 +117,10 @@ onMounted(async () => {
     try {
         const res = await api.get('/menu/')
         menus.value = res.data
+        // Pré-remplir le menu si passé en paramètre URL
+        if (route.query.menu) {
+            menuId.value = Number(route.query.menu)
+        }
     } catch (e) {
         console.error('Erreur menus', e)
     }
@@ -137,16 +144,17 @@ async function passerCommande() {
             adresse_livraison: adresseLivraison.value,
             nombre_personnes: Number(nombrePersonnes.value),
             prix_menu: menuSelectionne.value.prix_base * Number(nombrePersonnes.value),
-            prix_livraison: ville.value.toLowerCase() === 'saint-denis' ? 0 : 15,
-            prix_total: (menuSelectionne.value.prix_base * Number(nombrePersonnes.value)) + (ville.value.toLowerCase() === 'saint-denis' ? 0 : 15),
+            prix_livraison: ville.value.toLowerCase() === 'bordeaux' ? 0 : 15,
+            prix_total: (menuSelectionne.value.prix_base * Number(nombrePersonnes.value)) + (ville.value.toLowerCase() === 'bordeaux' ? 0 : 15),
             statut: 'en_attente',
             mode_contact: modeContact.value,
             pret_materiel: pretMateriel.value,
+            motif_annulation: null,
             utilisateur_id: authStore.user.id,
             menu_id: Number(menuId.value)
         })
         succes.value = 'Commande envoyée avec succès !'
-        setTimeout(() => router.push('/'), 2000)
+        setTimeout(() => router.push('/mes-commandes'), 2000)
     } catch (e) {
         erreur.value = 'Erreur lors de la commande.'
         console.error(e)
@@ -215,6 +223,12 @@ h1 {
     margin-bottom: 0.5rem;
 }
 
+.total {
+    font-weight: bold;
+    color: #085041;
+    margin-top: 0.5rem;
+}
+
 button {
     width: 100%;
     padding: 0.8rem;
@@ -247,5 +261,11 @@ button:disabled {
     border-radius: 4px;
     margin-bottom: 1rem;
     text-align: center;
+}
+
+@media (max-width: 768px) {
+    .commande-page {
+        padding: 1rem;
+    }
 }
 </style>
