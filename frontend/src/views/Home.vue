@@ -1,192 +1,156 @@
 <template>
-    <div>
+<div>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="badge">Depuis 25 ans à Bordeaux</span>
+            <h1>Vite & Gourmand</h1>
+            <p class="subtitle">
+                Julie et José vous accompagnent dans tous vos événements avec des menus
+                savoureux, préparés avec passion et renouvelés tout au long de l'année.
+            </p>
+            <p class="description">
+                Noël, Pâques, anniversaires, repas de famille ou événements
+                professionnels, découvrez des prestations de qualité adaptées à toutes
+                les occasions.
+            </p>
+            <div class="hero-buttons">
+                <RouterLink to="/menus" class="btn-primary">Découvrir nos menus</RouterLink>
+                <RouterLink to="/contact" class="btn-secondary">Nous contacter</RouterLink>
+            </div>
+        </div>
+    </section>
 
-        <!-- HERO -->
-        <section class="hero">
-            <div class="hero-content">
-                <span class="badge">Depuis 25 ans à Bordeaux</span>
-
-                <h1>Vite & Gourmand</h1>
-
-                <p class="subtitle">
-                    Julie et José vous accompagnent dans tous vos événements avec des menus
-                    savoureux, préparés avec passion et renouvelés tout au long de l'année.
-                </p>
-
-                <p class="description">
-                    Noël, Pâques, anniversaires, repas de famille ou événements
-                    professionnels, découvrez des prestations de qualité adaptées à toutes
-                    les occasions.
-                </p>
-
-                <div class="hero-buttons">
-                    <RouterLink to="/menus" class="btn-primary">
-                        Découvrir nos menus
-                    </RouterLink>
-
-                    <RouterLink to="/contact" class="btn-secondary">
-                        Nous contacter
-                    </RouterLink>
+    <!-- PRESENTATION -->
+    <section class="about">
+        <div class="container">
+            <h2>Une histoire de passion culinaire</h2>
+            <p>Créée par Julie et José, Vite & Gourmand accompagne les particuliers et les professionnels depuis plus de 25 ans.</p>
+            <p>Grâce à leur expérience, ils élaborent des menus variés et évolutifs afin de proposer à leurs clients des plats adaptés aux saisons et aux événements de l'année.</p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>25+</h3>
+                    <p>Années d'expérience</p>
+                </div>
+                <div class="stat-card">
+                    <h3>100%</h3>
+                    <p>Passion & savoir-faire</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Toute l'année</h3>
+                    <p>Menus renouvelés</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- PRESENTATION -->
-        <section class="about">
-            <div class="container">
-                <h2>Une histoire de passion culinaire</h2>
-
-                <p>
-                    Créée par Julie et José, Vite & Gourmand accompagne les particuliers
-                    et les professionnels depuis plus de 25 ans.
-                </p>
-
-                <p>
-                    Grâce à leur expérience, ils élaborent des menus variés et évolutifs
-                    afin de proposer à leurs clients des plats adaptés aux saisons et aux
-                    événements de l'année.
-                </p>
-
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>25+</h3>
-                        <p>Années d'expérience</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>100%</h3>
-                        <p>Passion & savoir-faire</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>Toute l'année</h3>
-                        <p>Menus renouvelés</p>
-                    </div>
+    <!-- AVANTAGES -->
+    <section class="advantages">
+        <div class="container">
+            <h2>Pourquoi choisir Vite & Gourmand ?</h2>
+            <div class="advantages-grid">
+                <div class="advantage-card">
+                    <div class="icon">🍽️</div>
+                    <h3>Menus variés</h3>
+                    <p>Des menus régulièrement renouvelés pour satisfaire tous les goûts.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="icon">🎉</div>
+                    <h3>Tous vos événements</h3>
+                    <p>Mariages, anniversaires, fêtes de famille ou événements d'entreprise.</p>
+                </div>
+                <div class="advantage-card">
+                    <div class="icon">⭐</div>
+                    <h3>25 ans d'expérience</h3>
+                    <p>Une expertise reconnue dans la préparation de repas événementiels.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- AVANTAGES -->
-        <section class="advantages">
-            <div class="container">
-                <h2>Pourquoi choisir Vite & Gourmand ?</h2>
+    <!-- MENUS EN VEDETTE -->
+    <section class="featured">
+        <div class="container">
+            <h2>Nos menus en vedette</h2>
+            <div class="menus-grid" v-if="menus.length">
+                <div class="menu-card" v-for="menu in menus.slice(0, 3)" :key="menu.id">
+                    <h3>{{ menu.titre }}</h3>
+                    <p class="description-menu">{{ menu.description }}</p>
+                    <div class="prix">À partir de {{ menu.prix_base }} € / personne</div>
 
-                <div class="advantages-grid">
-                    <div class="advantage-card">
-                        <div class="icon">🍽️</div>
-                        <h3>Menus variés</h3>
-                        <p>
-                            Des menus régulièrement renouvelés pour satisfaire tous les goûts.
-                        </p>
-                    </div>
-
-                    <div class="advantage-card">
-                        <div class="icon">🎉</div>
-                        <h3>Tous vos événements</h3>
-                        <p>
-                            Mariages, anniversaires, fêtes de famille ou événements d'entreprise.
-                        </p>
-                    </div>
-
-                    <div class="advantage-card">
-                        <div class="icon">⭐</div>
-                        <h3>25 ans d'expérience</h3>
-                        <p>
-                            Une expertise reconnue dans la préparation de repas événementiels.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- MENUS -->
-        <section class="featured">
-            <div class="container">
-                <h2>Nos menus en vedette</h2>
-
-                <div class="menus-grid" v-if="menus.length">
-                    <div
-                        class="menu-card"
-                        v-for="menu in menus.slice(0, 3)"
-                        :key="menu.id"
-                    >
-                        <h3>{{ menu.titre }}</h3>
-
-                        <p>{{ menu.description }}</p>
-
-                        <div class="prix">
-                            À partir de {{ menu.prix_base }} € / personne
+                    <!-- Avis du menu -->
+                    <div class="avis-mini" v-if="getAvisMenu(menu.id).length > 0">
+                        <div class="avis-mini-item" v-for="a in getAvisMenu(menu.id).slice(0, 2)" :key="a.id">
+                            <span class="etoiles">{{ '★'.repeat(a.note) }}{{ '☆'.repeat(5 - a.note) }}</span>
+                            <span class="commentaire-mini">{{ a.commentaire }}</span>
                         </div>
-
-                        <RouterLink
-                            :to="`/menu/${menu.id}`"
-                            class="btn-card"
-                        >
-                            Voir le menu
-                        </RouterLink>
                     </div>
-                </div>
 
-                <div v-else class="empty">
-                    Aucun menu disponible pour le moment.
+                    <RouterLink to="/menus" class="btn-card">Voir le menu</RouterLink>
                 </div>
             </div>
-        </section>
+            <div v-else class="empty">Aucun menu disponible pour le moment.</div>
+        </div>
+    </section>
 
-        <!-- HORAIRES -->
-        <section class="horaires">
-            <div class="container">
-                <h2>Nos horaires</h2>
-
-                <div class="horaire-card">
-                    <div class="horaire-row">
-                        <span>Lundi - Vendredi</span>
-                        <span>08h00 - 18h00</span>
-                    </div>
-
-                    <div class="horaire-row">
-                        <span>Samedi</span>
-                        <span>08h00 - 16h00</span>
-                    </div>
-
-                    <div class="horaire-row">
-                        <span>Dimanche</span>
-                        <span class="closed">Fermé</span>
-                    </div>
+    <!-- HORAIRES -->
+    <section class="horaires">
+        <div class="container">
+            <h2>Nos horaires</h2>
+            <div class="horaire-card">
+                <div class="horaire-row">
+                    <span>Lundi - Vendredi</span>
+                    <span>08h00 - 18h00</span>
+                </div>
+                <div class="horaire-row">
+                    <span>Samedi</span>
+                    <span>08h00 - 16h00</span>
+                </div>
+                <div class="horaire-row">
+                    <span>Dimanche</span>
+                    <span class="closed">Fermé</span>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- CTA -->
-        <section class="cta">
-            <div class="container">
-                <h2>Organisez votre prochain événement avec nous</h2>
-
-                <p>
-                    Découvrez nos menus et trouvez la formule idéale pour vos invités.
-                </p>
-
-                <RouterLink to="/menus" class="btn-card">
-                    Voir le menu
-                </RouterLink>
-            </div>
-        </section>
-
-    </div>
+    <!-- CTA -->
+    <section class="cta">
+        <div class="container">
+            <h2>Organisez votre prochain événement avec nous</h2>
+            <p>Découvrez nos menus et trouvez la formule idéale pour vos invités.</p>
+            <RouterLink to="/menus" class="btn-light">Voir tous les menus</RouterLink>
+        </div>
+    </section>
+</div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import api from "../services/api"
+import {
+    ref,
+    onMounted
+} from 'vue'
+import api from '../services/api'
 
 const menus = ref([])
+const avis = ref([])
+
+function getAvisMenu(menuId) {
+    return avis.value.filter(a => a.statut === 'valide' && Number(a.menu_id) === Number(menuId))
+}
 
 onMounted(async () => {
     try {
-        const response = await api.get("/menu/")
-        menus.value = response.data
-    } catch (error) {
-        console.error("Erreur chargement menus :", error)
+        const res = await api.get('/menu/')
+        menus.value = res.data
+    } catch (e) {
+        console.error('Erreur menus', e)
+    }
+    try {
+        const res = await api.get('/avis/')
+        avis.value = res.data
+    } catch (e) {
+        console.error('Erreur avis', e)
     }
 })
 </script>
@@ -202,12 +166,9 @@ onMounted(async () => {
     padding: 0 20px;
 }
 
-/* HERO */
-
 .hero {
     min-height: 80vh;
-    background:
-        linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+    background: linear-gradient(rgba(0, 0, 0, .55), rgba(0, 0, 0, .55)),
         url("https://images.unsplash.com/photo-1555244162-803834f70033");
     background-size: cover;
     background-position: center;
@@ -224,7 +185,7 @@ onMounted(async () => {
 }
 
 .badge {
-    background: rgba(255,255,255,.2);
+    background: rgba(255, 255, 255, .2);
     padding: 8px 18px;
     border-radius: 30px;
     display: inline-block;
@@ -284,7 +245,6 @@ onMounted(async () => {
     color: #1D9E75;
 }
 
-
 .about {
     padding: 80px 0;
 }
@@ -305,7 +265,7 @@ onMounted(async () => {
 .stats-grid {
     margin-top: 50px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
 }
 
@@ -314,7 +274,7 @@ onMounted(async () => {
     padding: 30px;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
 }
 
 .stat-card h3 {
@@ -335,7 +295,7 @@ onMounted(async () => {
 
 .advantages-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px,1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 25px;
 }
 
@@ -344,7 +304,7 @@ onMounted(async () => {
     padding: 30px;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
 }
 
 .icon {
@@ -364,7 +324,7 @@ onMounted(async () => {
 
 .menus-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 25px;
 }
 
@@ -372,7 +332,9 @@ onMounted(async () => {
     background: white;
     padding: 25px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    display: flex;
+    flex-direction: column;
 }
 
 .menu-card h3 {
@@ -380,16 +342,45 @@ onMounted(async () => {
     margin-bottom: 15px;
 }
 
+.description-menu {
+    flex: 1;
+    color: #555;
+    font-size: 0.95rem;
+}
+
 .prix {
-    margin: 20px 0;
+    margin: 15px 0;
     font-weight: bold;
     color: #444;
+}
+
+.avis-mini {
+    margin: 10px 0;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.avis-mini-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+}
+
+.etoiles {
+    color: #f5a623;
+}
+
+.commentaire-mini {
+    color: #666;
+    font-style: italic;
 }
 
 .btn-card {
     display: inline-block;
     background: #1D9E75;
     color: white;
+    margin-top: auto;
 }
 
 .empty {
@@ -431,7 +422,6 @@ onMounted(async () => {
     font-weight: bold;
 }
 
-
 .cta {
     background: #1D9E75;
     color: white;
@@ -447,4 +437,19 @@ onMounted(async () => {
     margin-bottom: 30px;
 }
 
+@media (max-width: 1024px) {
+    .menus-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .menus-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
