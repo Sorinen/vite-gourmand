@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN echo "rebuild-$(date)" > /tmp/build_info
+RUN echo "rebuild-20260629" > /tmp/build_info
 
 EXPOSE 8000
 

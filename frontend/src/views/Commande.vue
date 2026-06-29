@@ -63,6 +63,8 @@
                 <p>Prix par personne : {{ menuSelectionne.prix_base }}€</p>
                 <p>Minimum : {{ menuSelectionne.nombre_personnes_min }} personnes</p>
                 <p class="total">Total estimé : {{ menuSelectionne.prix_base * nombrePersonnes }}€</p>
+                <p v-if="!pretMateriel">Location matériel : 15€</p>
+                <p v-else>Matériel fourni : 0€</p>
             </div>
 
             <button type="submit" :disabled="chargement">
