@@ -85,7 +85,10 @@ const menusFiltres = computed(() => {
 })
 
 const avisValides = computed(() => {
-    return avis.value.filter(a => a.statut === 'valide')
+    if (!menuSelectionne.value) return []
+    return avis.value.filter(a =>
+        a.statut === 'valide' && a.menu_id === menuSelectionne.value.id
+    )
 })
 
 function ouvrirModal(menu) {
