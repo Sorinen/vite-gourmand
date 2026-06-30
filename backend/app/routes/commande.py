@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.commande import Commande, CommandeCreate
+from app.schemas.commande import Commande, CommandeCreate, CommandeUpdate
 from app.crud import commande as commande_crud
 from app.crud.menu import get_menu
 from app.utils.dependencies import get_current_user, require_role
@@ -27,7 +27,13 @@ def create_commande(
     if not menu:
         raise HTTPException(status_code=404, detail="Menu introuvable")
 
+    if menu.stock_disponible <= 0:
+        raise HTTPException(status_code=400, detail="Ce menu n'est plus disponible (stock épuisé)")
+
     nouvelle_commande = commande_crud.create_commande(db, commande)
+
+    menu.stock_disponible -= 1
+    db.commit()
 
     historique = HistoriqueStatut(
         statut=nouvelle_commande.statut,
@@ -55,6 +61,65 @@ def create_commande(
 
     return nouvelle_commande
 
+@router.put("/{commande_id}", response_model=Commande)
+def update_commande(
+    commande_id: int,
+    data: CommandeUpdate,
+    db: Session = Depends(get_db),
+    current_user: Utilisateur = Depends(get_current_user)
+):
+    commande = commande_crud.get_commande(db, commande_id)
+    if not commande:
+        raise HTTPException(status_code=404, detail="Commande introuvable")
+
+    if commande.utilisateur_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez modifier que vos propres commandes")
+
+    if commande.statut != "en_attente":
+        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être modifiée (déjà acceptée ou traitée)")
+
+    update_data = data.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(commande, key, value)
+
+    db.commit()
+    db.refresh(commande)
+    return commande
+
+@router.delete("/{commande_id}")
+def annuler_commande_client(
+    commande_id: int,
+    db: Session = Depends(get_db),
+    current_user: Utilisateur = Depends(get_current_user)
+):
+    commande = commande_crud.get_commande(db, commande_id)
+    if not commande:
+        raise HTTPException(status_code=404, detail="Commande introuvable")
+
+    if commande.utilisateur_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Vous ne pouvez annuler que vos propres commandes")
+
+    if commande.statut != "en_attente":
+        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être annulée (déjà acceptée ou traitée)")
+
+    commande.statut = "annulee"
+    db.commit()
+
+    menu = get_menu(db, commande.menu_id)
+    if menu:
+        menu.stock_disponible += 1
+        db.commit()
+
+    historique = HistoriqueStatut(
+        statut="annulee",
+        commande_id=commande.id,
+        modifie_par=current_user.id
+    )
+    db.add(historique)
+    db.commit()
+
+    return {"message": "Commande annulée"}
+
 @router.patch("/{commande_id}/statut")
 def changer_statut(
     commande_id: int,
@@ -67,6 +132,7 @@ def changer_statut(
     if not commande:
         raise HTTPException(status_code=404, detail="Commande introuvable")
 
+    ancien_statut = commande.statut
     nouveau_statut = data["statut"]
     commande.statut = nouveau_statut
 
@@ -74,6 +140,11 @@ def changer_statut(
         commande.motif_annulation = data["motif_annulation"]
     if "mode_contact" in data:
         commande.mode_contact = data["mode_contact"]
+
+    if nouveau_statut == "annulee" and ancien_statut != "annulee":
+        menu = get_menu(db, commande.menu_id)
+        if menu:
+            menu.stock_disponible += 1
 
     db.commit()
     db.refresh(commande)
