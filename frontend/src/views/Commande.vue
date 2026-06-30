@@ -40,22 +40,23 @@
         <div class="champ">
           <label>Livraison</label>
           <div class="livraison-choix">
-            <button type="button" :class="['btn-livraison', { actif: livraisonBordeaux }]" @click="livraisonBordeaux = true">
-              📍 Bordeaux — Gratuit
+            <button type="button" :class="['btn-livraison', { actif: livraisonBordeaux }]" @click="selectionnerBordeaux">
+              📍 Bordeaux — 5€
             </button>
             <button type="button" :class="['btn-livraison', { actif: !livraisonBordeaux }]" @click="livraisonBordeaux = false">
-              🚚 Hors Bordeaux — +15€
+              🚚 Autre ville
             </button>
           </div>
-          <input
-            v-if="!livraisonBordeaux"
-            type="text"
-            v-model="ville"
-            required
-            placeholder="Nom de votre ville"
-            class="input-ville"
-          />
-          <p v-else class="ville-bordeaux">Bordeaux</p>
+          <select v-if="!livraisonBordeaux" v-model="villeSelectionnee" required class="select-ville">
+            <option value="">Choisir une ville</option>
+            <option v-for="v in villesDisponibles" :key="v.nom" :value="v.nom">
+              {{ v.nom }} ({{ v.distance }} km)
+            </option>
+            <option value="autre">Autre (distance estimée 30 km)</option>
+          </select>
+          <p class="info-livraison">
+            Frais de livraison : 5€ + 0,59€/km — {{ distanceKm }} km estimés
+          </p>
         </div>
 
         <div class="champ">
@@ -91,10 +92,9 @@
           <p>Nombre de personnes : {{ nombrePersonnes }}</p>
           <p>Sous-total menu : {{ sousTotal }}€</p>
           <p v-if="reductionActive" class="reduction">Réduction 10% : -{{ montantReduction }}€</p>
+          <p class="supplement">Livraison ({{ distanceKm }} km) : +{{ prixLivraison }}€</p>
           <p v-if="pretMateriel" class="supplement">Location matériel : +15€</p>
           <p v-else class="inclus">Sans location matériel : 0€</p>
-          <p v-if="!livraisonBordeaux" class="supplement">Livraison hors Bordeaux : +15€</p>
-          <p v-else class="inclus">Livraison Bordeaux : Gratuit</p>
           <p class="total">Total : {{ prixTotal }}€</p>
         </div>
 
@@ -116,13 +116,28 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 
+const villesDisponibles = [
+  { nom: 'Mérignac', distance: 10 },
+  { nom: 'Pessac', distance: 12 },
+  { nom: 'Talence', distance: 8 },
+  { nom: 'Bègles', distance: 9 },
+  { nom: 'Le Bouscat', distance: 7 },
+  { nom: 'Villenave-d\u2019Ornon', distance: 11 },
+  { nom: 'Bruges', distance: 9 },
+  { nom: 'Cenon', distance: 8 },
+  { nom: 'Lormont', distance: 9 },
+  { nom: 'Eysines', distance: 11 },
+  { nom: 'Arcachon', distance: 60 },
+  { nom: 'Libourne', distance: 35 }
+]
+
 const menus = ref([])
 const menuId = ref('')
 const datePrestation = ref('')
 const heureLivraison = ref('')
 const adresseLivraison = ref('')
-const ville = ref('')
 const livraisonBordeaux = ref(true)
+const villeSelectionnee = ref('')
 const nombrePersonnes = ref(1)
 const modeContact = ref('email')
 const pretMateriel = ref(false)
@@ -130,8 +145,25 @@ const erreur = ref('')
 const succes = ref('')
 const chargement = ref(false)
 
+function selectionnerBordeaux() {
+  livraisonBordeaux.value = true
+  villeSelectionnee.value = ''
+}
+
 const menuSelectionne = computed(() => {
   return menus.value.find(m => m.id === Number(menuId.value))
+})
+
+const distanceKm = computed(() => {
+  if (livraisonBordeaux.value) return 0
+  if (villeSelectionnee.value === 'autre') return 30
+  const v = villesDisponibles.find(v => v.nom === villeSelectionnee.value)
+  return v ? v.distance : 0
+})
+
+const prixLivraison = computed(() => {
+  if (livraisonBordeaux.value) return 5
+  return Math.round((5 + distanceKm.value * 0.59) * 100) / 100
 })
 
 const reductionActive = computed(() => {
@@ -149,10 +181,6 @@ const montantReduction = computed(() => {
   return Math.round(sousTotal.value * 0.1 * 100) / 100
 })
 
-const prixLivraison = computed(() => {
-  return livraisonBordeaux.value ? 0 : 15
-})
-
 const prixLocation = computed(() => {
   return pretMateriel.value ? 15 : 0
 })
@@ -164,11 +192,14 @@ const prixTotal = computed(() => {
 
 const commandeInvalide = computed(() => {
   if (!menuSelectionne.value) return true
-  return Number(nombrePersonnes.value) < menuSelectionne.value.nombre_personnes_min
+  if (Number(nombrePersonnes.value) < menuSelectionne.value.nombre_personnes_min) return true
+  if (!livraisonBordeaux.value && !villeSelectionnee.value) return true
+  return false
 })
 
 const villeFinale = computed(() => {
-  return livraisonBordeaux.value ? 'Bordeaux' : ville.value
+  if (livraisonBordeaux.value) return 'Bordeaux'
+  return villeSelectionnee.value === 'autre' ? 'Autre ville' : villeSelectionnee.value
 })
 
 onMounted(async () => {
@@ -204,8 +235,8 @@ async function passerCommande() {
     return
   }
 
-  if (!livraisonBordeaux.value && !ville.value.trim()) {
-    erreur.value = 'Veuillez saisir votre ville.'
+  if (!livraisonBordeaux.value && !villeSelectionnee.value) {
+    erreur.value = 'Veuillez choisir une ville de livraison.'
     chargement.value = false
     return
   }
@@ -330,19 +361,14 @@ h1 {
   font-weight: bold;
 }
 
-.input-ville {
-  width: 100%;
-  padding: 0.7rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
+.select-ville {
   margin-top: 0.5rem;
 }
 
-.ville-bordeaux {
-  color: #1D9E75;
-  font-weight: bold;
-  padding: 0.3rem 0;
+.info-livraison {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
 }
 
 .resume {
