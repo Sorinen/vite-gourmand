@@ -4,10 +4,8 @@ from app.database import Base
 from datetime import datetime, timezone
 from sqlalchemy.orm import relationship
 
-
 class Utilisateur(Base):
     __tablename__ = "utilisateur"
-
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, nullable=False, index=True)
     mot_de_passe = Column(String, nullable=False)
@@ -19,3 +17,5 @@ class Utilisateur(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     role_id = Column(Integer, ForeignKey("role.id"), nullable=False)
     role = relationship("Role")
+    reset_token = Column(String, nullable=True)
+    reset_token_expiration = Column(DateTime(timezone=True), nullable=True)

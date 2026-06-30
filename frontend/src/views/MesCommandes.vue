@@ -5,7 +5,7 @@
       <div class="commande-card" v-for="commande in commandes" :key="commande.id">
         <div class="commande-header">
           <span class="commande-id">#{{ commande.id }}</span>
-          <span :class="['statut', commande.statut]">{{ commande.statut.replace('_', ' ') }}</span>
+          <span :class="['statut', commande.statut]">{{ formatStatut(commande.statut) }}</span>
         </div>
         <p><strong>Menu :</strong> {{ getNomMenu(commande.menu_id) }}</p>
         <p><strong>Date :</strong> {{ commande.date_prestation }}</p>
@@ -28,6 +28,21 @@ const router = useRouter()
 const authStore = useAuthStore()
 const commandes = ref([])
 const menus = ref([])
+
+const libellesStatuts = {
+  en_attente: 'En attente',
+  accepte: 'Accepté',
+  en_preparation: 'En préparation',
+  en_cours_livraison: 'En cours de livraison',
+  livre: 'Livré',
+  en_attente_retour_materiel: 'Attente retour matériel',
+  terminee: 'Terminée',
+  annulee: 'Annulée'
+}
+
+function formatStatut(statut) {
+  return libellesStatuts[statut] || statut
+}
 
 function getNomMenu(menuId) {
   const menu = menus.value.find(m => m.id === menuId)
@@ -60,44 +75,20 @@ onMounted(async () => {
   margin: 0 auto;
   padding: 2rem;
 }
-h1 {
-  color: #1D9E75;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-.commandes-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-.commande-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-.commande-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-.commande-id {
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: #1D9E75;
-}
-.statut {
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: bold;
-  text-transform: capitalize;
-}
+h1 { color: #1D9E75; margin-bottom: 2rem; text-align: center; }
+.commandes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.commande-card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.commande-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.commande-id { font-weight: bold; font-size: 1.1rem; color: #1D9E75; }
+.statut { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
 .en_attente { background: #fff3cd; color: #856404; }
-.confirmee { background: #d4edda; color: #155724; }
+.accepte { background: #d4edda; color: #155724; }
+.en_preparation { background: #ffe5d0; color: #99450c; }
+.en_cours_livraison { background: #cce5ff; color: #004085; }
+.livre { background: #e2d9f3; color: #4a2c82; }
+.en_attente_retour_materiel { background: #fde2cf; color: #99450c; }
+.terminee { background: #d1ecf1; color: #0c5460; }
 .annulee { background: #f8d7da; color: #721c24; }
-.terminee { background: #cce5ff; color: #004085; }
 .vide { text-align: center; color: #666; }
 @media (max-width: 1024px) {
   .commandes-grid { grid-template-columns: repeat(2, 1fr); }

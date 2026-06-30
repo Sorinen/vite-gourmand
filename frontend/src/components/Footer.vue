@@ -3,27 +3,29 @@
     <div class="footer-content">
         <div class="footer-section">
             <h3>Vite & Gourmand</h3>
-            <p>Traiteur événementiel à La Réunion</p>
-            <p>📍 Saint-Adré, La Réunion</p>
-            <p>📞 0692 12 34 56</p>
-            <p>✉️ contact@vitegourmand.re</p>
+            <p>Traiteur événementiel à Bordeaux</p>
+            <p>📍 Bordeaux, France</p>
+            <p>📞 05 56 12 34 56</p>
+            <p>✉️ contact@zotpresta.re</p>
         </div>
-
         <div class="footer-section">
             <h3>Horaires</h3>
             <p>Lundi — Vendredi : 08h00 - 18h00</p>
             <p>Samedi : 08h00 - 16h00</p>
             <p>Dimanche : Fermé</p>
         </div>
-
         <div class="footer-section">
             <h3>Navigation</h3>
             <RouterLink to="/">Accueil</RouterLink>
             <RouterLink to="/menus">Nos Menus</RouterLink>
             <RouterLink to="/contact">Contact</RouterLink>
         </div>
+        <div class="footer-section">
+            <h3>Informations légales</h3>
+            <RouterLink to="/mentions-legales">Mentions légales</RouterLink>
+            <RouterLink to="/cgv">Conditions générales de vente</RouterLink>
+        </div>
     </div>
-
     <div class="footer-bottom">
         <p>© 2026 Vite & Gourmand — Tous droits réservés</p>
     </div>
@@ -79,5 +81,13 @@
     padding: 0.5rem 1rem;
     color: #ccc;
     font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1rem 1rem;
+    }
 }
 </style>
