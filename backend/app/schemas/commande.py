@@ -1,4 +1,4 @@
-from pydantic import BaseModel 
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime, date, time
 
@@ -20,9 +20,18 @@ class CommandeBase(BaseModel):
 class CommandeCreate(CommandeBase):
     pass
 
+class CommandeUpdate(BaseModel):
+    date_prestation: Optional[date] = None
+    heure_livraison: Optional[time] = None
+    adresse_livraison: Optional[str] = None
+    nombre_personnes: Optional[int] = None
+    prix_menu: Optional[float] = None
+    prix_livraison: Optional[float] = None
+    prix_total: Optional[float] = None
+    pret_materiel: Optional[bool] = None
+
 class Commande(CommandeBase):
     id: int
     created_at: Optional[datetime] = None
-
     class Config:
         from_attributes = True

@@ -30,7 +30,7 @@
             <span>{{ commande.prix_total }}€</span>
           </div>
           <div class="commande-statut">
-            <select v-model="commande.statut" @change="changerStatut(commande)">
+            <select v-model="commande.statut" @change="onChangeStatut(commande)">
               <option value="en_attente">En attente</option>
               <option value="accepte">Accepté</option>
               <option value="en_preparation">En préparation</option>
@@ -89,6 +89,29 @@
       </div>
       <p v-else class="vide">✅ Aucun message de contact.</p>
     </div>
+
+    <!-- Modal annulation -->
+    <div class="modal-overlay" v-if="commandeAAnnuler" @click.self="annulerModalAnnulation">
+      <div class="modal">
+        <button class="modal-close" @click="annulerModalAnnulation">✕</button>
+        <h2>Annuler la commande #{{ commandeAAnnuler.id }}</h2>
+        <p class="info">Le client doit avoir été contacté avant l'annulation.</p>
+        <div class="champ">
+          <label>Mode de contact utilisé</label>
+          <select v-model="modeContactAnnulation">
+            <option value="appel">Appel téléphonique</option>
+            <option value="mail">Email</option>
+          </select>
+        </div>
+        <div class="champ">
+          <label>Motif d'annulation</label>
+          <textarea v-model="motifAnnulation" rows="4" placeholder="Expliquez le motif de l'annulation..."></textarea>
+        </div>
+        <button @click="confirmerAnnulation" class="btn-confirmer-annulation" :disabled="!motifAnnulation.trim()">
+          Confirmer l'annulation
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -107,6 +130,9 @@ const contacts = ref([])
 const menus = ref([])
 const contactReponse = ref(null)
 const texteReponse = ref('')
+const commandeAAnnuler = ref(null)
+const motifAnnulation = ref('')
+const modeContactAnnulation = ref('appel')
 
 const libellesStatuts = {
   en_attente: 'En attente',
@@ -128,6 +154,39 @@ function getNomMenu(menuId) {
   return menu ? menu.titre : 'Menu inconnu'
 }
 
+function onChangeStatut(commande) {
+  if (commande.statut === 'annulee') {
+    commandeAAnnuler.value = commande
+    motifAnnulation.value = ''
+    modeContactAnnulation.value = 'appel'
+    commande.statut = commande._statutPrecedent || 'en_attente'
+  } else {
+    commande._statutPrecedent = commande.statut
+    changerStatut(commande)
+  }
+}
+
+function annulerModalAnnulation() {
+  commandeAAnnuler.value = null
+}
+
+async function confirmerAnnulation() {
+  if (!motifAnnulation.value.trim()) return
+  try {
+    await api.patch(`/commandes/${commandeAAnnuler.value.id}/statut`, {
+      statut: 'annulee',
+      motif_annulation: motifAnnulation.value,
+      mode_contact: modeContactAnnulation.value
+    })
+    const c = commandes.value.find(c => c.id === commandeAAnnuler.value.id)
+    if (c) c.statut = 'annulee'
+    commandeAAnnuler.value = null
+  } catch (e) {
+    console.error('Erreur annulation', e)
+    alert("Erreur lors de l'annulation")
+  }
+}
+
 onMounted(async () => {
   if (!authStore.isAdmin) {
     router.push('/')
@@ -147,7 +206,7 @@ onMounted(async () => {
   }
   try {
     const res = await api.get('/commandes/')
-    commandes.value = res.data
+    commandes.value = res.data.map(c => ({ ...c, _statutPrecedent: c.statut }))
   } catch (e) {
     console.error('Erreur commandes', e)
   }
@@ -265,10 +324,25 @@ h2 { color: #085041; margin-bottom: 1.5rem; border-bottom: 2px solid #1D9E75; pa
 .reponse-form textarea { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; font-family: inherit; resize: vertical; }
 .reponse-actions { display: flex; gap: 1rem; margin-top: 0.5rem; }
 .btn-annuler { background: #666; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; width: auto; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
+}
+.modal { background: white; padding: 2rem; border-radius: 8px; max-width: 450px; width: 90%; position: relative; }
+.modal h2 { color: #dc3545; margin-bottom: 0.5rem; }
+.modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; width: auto; color: #333; }
+.info { color: #888; font-size: 0.85rem; margin-bottom: 1.5rem; }
+.champ { margin-bottom: 1rem; }
+.champ label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
+.champ select, .champ textarea { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+.btn-confirmer-annulation { width: 100%; padding: 0.7rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 0.5rem; }
+.btn-confirmer-annulation:disabled { opacity: 0.5; cursor: not-allowed; }
+
 @media (max-width: 768px) {
   .admin-page { padding: 1rem; }
   .commande-card { flex-direction: column; align-items: flex-start; }
-  .commande-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .commande-header { flex-direction: column; gap: 0.5rem; }
   .stats-grid { grid-template-columns: 1fr; }
   .contact-actions, .avis-actions, .reponse-actions { flex-direction: column; }
 }
