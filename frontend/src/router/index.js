@@ -11,6 +11,7 @@ const routes = [
   { path: '/mot-de-passe-oublie', name: 'MotDePasseOublie', component: () => import('../views/MotDePasseOublie.vue') },
   { path: '/reinitialiser-mdp', name: 'ReinitialiserMdp', component: () => import('../views/ReinitialiserMotDePasse.vue') },
   { path: '/commande', name: 'Commande', component: () => import('../views/Commande.vue') },
+  { path: '/mon-compte', name: 'MonCompte', component: () => import('../views/MonCompte.vue') },
   { path: '/mes-commandes', name: 'MesCommandes', component: () => import('../views/MesCommandes.vue') },
   { path: '/avis', name: 'Avis', component: () => import('../views/Avis.vue') },
   { path: '/admin', name: 'Admin', component: () => import('../views/Admin.vue') },

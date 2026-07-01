@@ -19,8 +19,21 @@
 
     <div class="commandes-section">
       <h2>Gestion des commandes</h2>
-      <div v-if="commandes.length > 0">
-        <div class="commande-card" v-for="commande in commandes" :key="commande.id">
+      <div class="filtres-commandes">
+        <select v-model="filtreStatut">
+          <option value="">Tous les statuts</option>
+          <option value="en_attente">En attente</option>
+          <option value="accepte">Accepté</option>
+          <option value="en_preparation">En préparation</option>
+          <option value="en_cours_livraison">En cours de livraison</option>
+          <option value="livre">Livré</option>
+          <option value="en_attente_retour_materiel">Attente retour matériel</option>
+          <option value="terminee">Terminée</option>
+          <option value="annulee">Annulée</option>
+        </select>
+      </div>
+      <div v-if="commandesFiltrees.length > 0">
+        <div class="commande-card" v-for="commande in commandesFiltrees" :key="commande.id">
           <div class="commande-header">
             <span class="commande-id">#{{ commande.id }}</span>
             <span class="menu-nom">{{ getNomMenu(commande.menu_id) }}</span>
@@ -90,6 +103,59 @@
       <p v-else class="vide">✅ Aucun message de contact.</p>
     </div>
 
+    <div class="employes-section">
+      <h2>Gestion des employés</h2>
+
+      <div class="creer-employe">
+        <h3>Créer un compte employé</h3>
+        <div v-if="succesEmploye" class="succes">{{ succesEmploye }}</div>
+        <div v-if="erreurEmploye" class="erreur">{{ erreurEmploye }}</div>
+        <form @submit.prevent="creerEmploye">
+          <div class="form-grid">
+            <div class="champ">
+              <label>Prénom</label>
+              <input type="text" v-model="nouveauEmploye.prenom" required />
+            </div>
+            <div class="champ">
+              <label>Nom</label>
+              <input type="text" v-model="nouveauEmploye.nom" required />
+            </div>
+            <div class="champ">
+              <label>Email</label>
+              <input type="email" v-model="nouveauEmploye.email" required />
+            </div>
+            <div class="champ">
+              <label>Mot de passe temporaire</label>
+              <input type="text" v-model="nouveauEmploye.mot_de_passe" required placeholder="À communiquer en personne" />
+            </div>
+          </div>
+          <button type="submit" class="btn-creer" :disabled="chargementEmploye">
+            {{ chargementEmploye ? 'Création...' : '➕ Créer le compte employé' }}
+          </button>
+        </form>
+      </div>
+
+      <div class="liste-employes" v-if="employes.length > 0">
+        <h3>Comptes employés</h3>
+        <div class="employe-card" v-for="e in employes" :key="e.id">
+          <div class="employe-info">
+            <span class="employe-nom">{{ e.prenom }} {{ e.nom }}</span>
+            <span class="employe-email">{{ e.email }}</span>
+            <span :class="['badge-actif', e.actif ? 'actif' : 'inactif']">
+              {{ e.actif ? '✅ Actif' : '🚫 Désactivé' }}
+            </span>
+          </div>
+          <button
+            @click="toggleActif(e)"
+            :class="e.actif ? 'btn-desactiver' : 'btn-activer'"
+          >
+            {{ e.actif ? 'Désactiver' : 'Réactiver' }}
+          </button>
+        </div>
+      </div>
+      <p v-else class="vide">Aucun employé.</p>
+    </div>
+
     <!-- Modal annulation -->
     <div class="modal-overlay" v-if="commandeAAnnuler" @click.self="annulerModalAnnulation">
       <div class="modal">
@@ -105,7 +171,7 @@
         </div>
         <div class="champ">
           <label>Motif d'annulation</label>
-          <textarea v-model="motifAnnulation" rows="4" placeholder="Expliquez le motif de l'annulation..."></textarea>
+          <textarea v-model="motifAnnulation" rows="4" placeholder="Expliquez le motif..."></textarea>
         </div>
         <button @click="confirmerAnnulation" class="btn-confirmer-annulation" :disabled="!motifAnnulation.trim()">
           Confirmer l'annulation
@@ -116,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import api from '../services/api'
@@ -128,11 +194,17 @@ const commandes = ref([])
 const avis = ref([])
 const contacts = ref([])
 const menus = ref([])
+const employes = ref([])
 const contactReponse = ref(null)
 const texteReponse = ref('')
 const commandeAAnnuler = ref(null)
 const motifAnnulation = ref('')
 const modeContactAnnulation = ref('appel')
+const filtreStatut = ref('')
+const succesEmploye = ref('')
+const erreurEmploye = ref('')
+const chargementEmploye = ref(false)
+const nouveauEmploye = ref({ prenom: '', nom: '', email: '', mot_de_passe: '' })
 
 const libellesStatuts = {
   en_attente: 'En attente',
@@ -153,6 +225,11 @@ function getNomMenu(menuId) {
   const menu = menus.value.find(m => m.id === menuId)
   return menu ? menu.titre : 'Menu inconnu'
 }
+
+const commandesFiltrees = computed(() => {
+  if (!filtreStatut.value) return commandes.value
+  return commandes.value.filter(c => c.statut === filtreStatut.value)
+})
 
 function onChangeStatut(commande) {
   if (commande.statut === 'annulee') {
@@ -182,8 +259,33 @@ async function confirmerAnnulation() {
     if (c) c.statut = 'annulee'
     commandeAAnnuler.value = null
   } catch (e) {
-    console.error('Erreur annulation', e)
     alert("Erreur lors de l'annulation")
+  }
+}
+
+async function creerEmploye() {
+  erreurEmploye.value = ''
+  succesEmploye.value = ''
+  chargementEmploye.value = true
+  try {
+    await api.post('/utilisateurs/admin/creer-employe', nouveauEmploye.value)
+    succesEmploye.value = `Compte créé pour ${nouveauEmploye.value.prenom}. Un mail de notification a été envoyé.`
+    nouveauEmploye.value = { prenom: '', nom: '', email: '', mot_de_passe: '' }
+    const res = await api.get('/utilisateurs/admin/employes')
+    employes.value = res.data
+  } catch (e) {
+    erreurEmploye.value = e.response?.data?.detail || "Erreur lors de la création"
+  } finally {
+    chargementEmploye.value = false
+  }
+}
+
+async function toggleActif(employe) {
+  try {
+    await api.patch(`/utilisateurs/admin/employes/${employe.id}/actif`, { actif: !employe.actif })
+    employe.actif = !employe.actif
+  } catch (e) {
+    alert("Erreur lors de la modification")
   }
 }
 
@@ -221,6 +323,12 @@ onMounted(async () => {
     contacts.value = res.data
   } catch (e) {
     console.error('Erreur contacts', e)
+  }
+  try {
+    const res = await api.get('/utilisateurs/admin/employes')
+    employes.value = res.data
+  } catch (e) {
+    console.error('Erreur employes', e)
   }
 })
 
@@ -275,13 +383,10 @@ async function supprimerContact(id) {
 </script>
 
 <style scoped>
-.admin-page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
+.admin-page { max-width: 1200px; margin: 0 auto; padding: 2rem; }
 h1 { color: #1D9E75; margin-bottom: 2rem; text-align: center; }
 h2 { color: #085041; margin-bottom: 1.5rem; border-bottom: 2px solid #1D9E75; padding-bottom: 0.5rem; }
+h3 { color: #085041; margin-bottom: 1rem; }
 .nav-admin { display: flex; gap: 1rem; margin-bottom: 2rem; }
 .btn-nav { background: #085041; color: white; padding: 0.7rem 1.5rem; border-radius: 4px; text-decoration: none; font-weight: bold; }
 .stats-section { margin-bottom: 3rem; }
@@ -291,6 +396,8 @@ h2 { color: #085041; margin-bottom: 1.5rem; border-bottom: 2px solid #1D9E75; pa
 .nombre { font-size: 1.5rem; font-weight: bold; color: #1D9E75; }
 .ca { color: #666; font-size: 0.9rem; }
 .commandes-section { margin-bottom: 3rem; }
+.filtres-commandes { margin-bottom: 1rem; }
+.filtres-commandes select { padding: 0.5rem 1rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; }
 .commande-card { background: white; border-radius: 8px; padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
 .commande-header { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 .commande-id { font-weight: bold; color: #1D9E75; }
@@ -324,26 +431,38 @@ h2 { color: #085041; margin-bottom: 1.5rem; border-bottom: 2px solid #1D9E75; pa
 .reponse-form textarea { width: 100%; padding: 0.7rem; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; font-family: inherit; resize: vertical; }
 .reponse-actions { display: flex; gap: 1rem; margin-top: 0.5rem; }
 .btn-annuler { background: #666; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; width: auto; }
-
-.modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;
-}
+.employes-section { margin-bottom: 3rem; }
+.creer-employe { background: #f0f9f5; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #1D9E75; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.champ { margin-bottom: 0; }
+.champ label { display: block; margin-bottom: 0.3rem; font-weight: bold; font-size: 0.9rem; }
+.champ input, .champ select, .champ textarea { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+.btn-creer { background: #1D9E75; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 4px; cursor: pointer; font-size: 0.95rem; }
+.btn-creer:disabled { opacity: 0.6; }
+.employe-card { background: white; border-radius: 8px; padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.employe-info { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+.employe-nom { font-weight: bold; color: #085041; }
+.employe-email { color: #1D9E75; }
+.badge-actif { padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.85rem; }
+.actif { background: #d4edda; color: #155724; }
+.inactif { background: #f8d7da; color: #721c24; }
+.btn-desactiver { background: #dc3545; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; width: auto; }
+.btn-activer { background: #1D9E75; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; width: auto; }
+.succes { background: #efe; color: #060; padding: 0.6rem; border-radius: 4px; margin-bottom: 1rem; }
+.erreur { background: #fee; color: #c00; padding: 0.6rem; border-radius: 4px; margin-bottom: 1rem; }
+.vide { color: #666; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
 .modal { background: white; padding: 2rem; border-radius: 8px; max-width: 450px; width: 90%; position: relative; }
 .modal h2 { color: #dc3545; margin-bottom: 0.5rem; }
 .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; width: auto; color: #333; }
 .info { color: #888; font-size: 0.85rem; margin-bottom: 1.5rem; }
-.champ { margin-bottom: 1rem; }
-.champ label { display: block; margin-bottom: 0.3rem; font-weight: bold; }
-.champ select, .champ textarea { width: 100%; padding: 0.6rem; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
 .btn-confirmer-annulation { width: 100%; padding: 0.7rem; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 0.5rem; }
-.btn-confirmer-annulation:disabled { opacity: 0.5; cursor: not-allowed; }
-
+.btn-confirmer-annulation:disabled { opacity: 0.5; }
 @media (max-width: 768px) {
   .admin-page { padding: 1rem; }
-  .commande-card { flex-direction: column; align-items: flex-start; }
-  .commande-header { flex-direction: column; gap: 0.5rem; }
-  .stats-grid { grid-template-columns: 1fr; }
+  .commande-card, .employe-card { flex-direction: column; align-items: flex-start; }
+  .commande-header, .employe-info { flex-direction: column; gap: 0.5rem; }
+  .stats-grid, .form-grid { grid-template-columns: 1fr; }
   .contact-actions, .avis-actions, .reponse-actions { flex-direction: column; }
 }
 </style>

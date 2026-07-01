@@ -14,18 +14,9 @@
           {{ regime.libelle }}
         </option>
       </select>
-      <input
-        type="number"
-        v-model.number="filtrePrixMax"
-        placeholder="Prix max (€)"
-        min="0"
-      />
-      <input
-        type="number"
-        v-model.number="filtreNbPersonnes"
-        placeholder="Nb personnes min"
-        min="0"
-      />
+      <input type="number" v-model.number="filtrePrixMin" placeholder="Prix min (€)" min="0" />
+      <input type="number" v-model.number="filtrePrixMax" placeholder="Prix max (€)" min="0" />
+      <input type="number" v-model.number="filtreNbPersonnes" placeholder="Nb personnes min" min="0" />
       <button v-if="filtresActifs" @click="reinitialiserFiltres" class="btn-reset">
         Réinitialiser
       </button>
@@ -40,7 +31,7 @@
         <button @click="ouvrirModal(menu)" class="btn">Voir le menu</button>
       </div>
     </div>
-    <p v-else>Aucun menu ne correspond à ces critères.</p>
+    <p v-else class="vide">Aucun menu ne correspond à ces critères.</p>
 
     <!-- Modal -->
     <div class="modal-overlay" v-if="menuSelectionne" @click.self="fermerModal">
@@ -92,18 +83,23 @@ const regimes = ref([])
 const avis = ref([])
 const filtreTheme = ref('')
 const filtreRegime = ref('')
+const filtrePrixMin = ref(null)
 const filtrePrixMax = ref(null)
 const filtreNbPersonnes = ref(null)
 const menuSelectionne = ref(null)
 
 const filtresActifs = computed(() => {
-  return filtreTheme.value !== '' || filtreRegime.value !== '' ||
-    filtrePrixMax.value !== null || filtreNbPersonnes.value !== null
+  return filtreTheme.value !== '' ||
+    filtreRegime.value !== '' ||
+    filtrePrixMin.value !== null ||
+    filtrePrixMax.value !== null ||
+    filtreNbPersonnes.value !== null
 })
 
 function reinitialiserFiltres() {
   filtreTheme.value = ''
   filtreRegime.value = ''
+  filtrePrixMin.value = null
   filtrePrixMax.value = null
   filtreNbPersonnes.value = null
 }
@@ -112,9 +108,10 @@ const menusFiltres = computed(() => {
   return menus.value.filter(menu => {
     const matchTheme = filtreTheme.value === '' || menu.theme_id === Number(filtreTheme.value)
     const matchRegime = filtreRegime.value === '' || menu.regime_id === Number(filtreRegime.value)
+    const matchPrixMin = !filtrePrixMin.value || menu.prix_base >= filtrePrixMin.value
     const matchPrixMax = !filtrePrixMax.value || menu.prix_base <= filtrePrixMax.value
     const matchNbPersonnes = !filtreNbPersonnes.value || menu.nombre_personnes_min >= filtreNbPersonnes.value
-    return matchTheme && matchRegime && matchPrixMax && matchNbPersonnes
+    return matchTheme && matchRegime && matchPrixMin && matchPrixMax && matchNbPersonnes
   })
 })
 
@@ -167,14 +164,7 @@ onMounted(async () => {
   max-width: 1200px;
   margin: 0 auto;
 }
-
-h1 {
-  color: #1D9E75;
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
+h1 { color: #1D9E75; font-size: 2rem; margin-bottom: 2rem; text-align: center; }
 .filtres {
   display: flex;
   gap: 1rem;
@@ -183,19 +173,13 @@ h1 {
   flex-wrap: wrap;
   align-items: center;
 }
-
-.filtres select,
-.filtres input {
+.filtres select, .filtres input {
   padding: 0.5rem 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
 }
-
-.filtres input {
-  width: 160px;
-}
-
+.filtres input { width: 150px; }
 .btn-reset {
   padding: 0.5rem 1rem;
   background: #888780;
@@ -205,43 +189,23 @@ h1 {
   cursor: pointer;
   font-size: 0.9rem;
 }
-
 .menus-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
 }
-
 .menu-card {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
 }
-
-.menu-card h3 {
-  color: #1D9E75;
-  margin-bottom: 0.5rem;
-}
-
-.menu-card p {
-  flex: 1;
-}
-
-.prix {
-  font-weight: bold;
-  color: #333;
-  margin: 0.5rem 0;
-}
-
-.min {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
-
+.menu-card h3 { color: #1D9E75; margin-bottom: 0.5rem; }
+.menu-card p { flex: 1; }
+.prix { font-weight: bold; color: #333; margin: 0.5rem 0; }
+.min { color: #666; font-size: 0.9rem; margin-bottom: 1rem; }
 .btn {
   background: #1D9E75;
   color: white;
@@ -251,20 +215,17 @@ h1 {
   cursor: pointer;
   margin-top: auto;
 }
-
+.vide { text-align: center; color: #666; margin-top: 2rem; }
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
-
 .modal {
   background: white;
   padding: 2rem;
@@ -275,16 +236,10 @@ h1 {
   max-height: 90vh;
   overflow-y: auto;
 }
-
-.modal h2 {
-  color: #1D9E75;
-  margin-bottom: 1rem;
-}
-
+.modal h2 { color: #1D9E75; margin-bottom: 1rem; }
 .modal-close {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1rem; right: 1rem;
   background: none;
   border: none;
   font-size: 1.2rem;
@@ -292,7 +247,6 @@ h1 {
   width: auto;
   color: #333;
 }
-
 .conditions-section {
   margin-top: 1.5rem;
   background: #fff8e6;
@@ -300,46 +254,13 @@ h1 {
   border-radius: 4px;
   padding: 1rem;
 }
-
-.conditions-section h3 {
-  color: #99450c;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-.conditions-section p {
-  color: #5f3a08;
-  font-size: 0.9rem;
-}
-
-.avis-section {
-  margin-top: 1.5rem;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-}
-
-.avis-section h3 {
-  color: #085041;
-  margin-bottom: 1rem;
-  font-size: 1rem;
-}
-
-.avis-item {
-  margin-bottom: 1rem;
-  padding: 0.8rem;
-  background: #f9f9f9;
-  border-radius: 4px;
-}
-
-.etoiles {
-  color: #f5a623;
-  margin-bottom: 0.3rem;
-}
-
-.modal-actions {
-  margin-top: 1.5rem;
-}
-
+.conditions-section h3 { color: #99450c; margin-bottom: 0.5rem; font-size: 1rem; }
+.conditions-section p { color: #5f3a08; font-size: 0.9rem; }
+.avis-section { margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem; }
+.avis-section h3 { color: #085041; margin-bottom: 1rem; font-size: 1rem; }
+.avis-item { margin-bottom: 1rem; padding: 0.8rem; background: #f9f9f9; border-radius: 4px; }
+.etoiles { color: #f5a623; margin-bottom: 0.3rem; }
+.modal-actions { margin-top: 1.5rem; }
 .btn-commander {
   background: #1D9E75;
   color: white;
@@ -347,30 +268,15 @@ h1 {
   border-radius: 4px;
   text-decoration: none;
   font-weight: bold;
+  display: inline-block;
 }
-
 @media (max-width: 1024px) {
-  .menus-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .menus-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (max-width: 768px) {
-  .menus-page {
-    padding: 1rem;
-  }
-
-  .menus-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .filtres {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filtres input {
-    width: 100%;
-  }
+  .menus-page { padding: 1rem; }
+  .menus-grid { grid-template-columns: 1fr; }
+  .filtres { flex-direction: column; align-items: stretch; }
+  .filtres input { width: 100%; }
 }
 </style>
