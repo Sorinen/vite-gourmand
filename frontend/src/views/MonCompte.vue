@@ -34,8 +34,8 @@
       </form>
 
       <div class="liens">
-        <RouterLink to="/mes-commandes">📦 Mes commandes</RouterLink>
-        <RouterLink to="/mot-de-passe-oublie">🔑 Changer mon mot de passe</RouterLink>
+        <RouterLink to="/mes-commandes">Mes commandes</RouterLink>
+        <RouterLink to="/mot-de-passe-oublie">Changer mon mot de passe</RouterLink>
       </div>
     </div>
   </div>
