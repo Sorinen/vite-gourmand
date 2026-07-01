@@ -82,3 +82,16 @@ def mail_employe_cree(email: str):
     <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
     """
     return envoyer_mail(email, sujet, contenu)
+
+def mail_retour_materiel(email: str, prenom: str, commande_id: int):
+    sujet = "Retour du matériel — Vite & Gourmand"
+    contenu = f"""
+    <h2>Bonjour {prenom},</h2>
+    <p>Votre prestation pour la commande <strong>#{commande_id}</strong> est terminée.</p>
+    <p>Nous vous rappelons que du matériel vous a été prêté (tables, chaises).</p>
+    <p><strong>Vous disposez de 10 jours ouvrés pour le restituer.</strong></p>
+    <p>Passé ce délai, des frais de <strong>600€</strong> vous seront facturés, conformément à nos conditions générales de vente.</p>
+    <p>Pour organiser le retour du matériel, veuillez nous contacter via notre formulaire de contact ou par téléphone.</p>
+    <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
+    """
+    return envoyer_mail(email, sujet, contenu)

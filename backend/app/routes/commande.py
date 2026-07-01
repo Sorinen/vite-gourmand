@@ -7,7 +7,7 @@ from app.crud.menu import get_menu
 from app.utils.dependencies import get_current_user, require_role
 from app.models.utilisateur import Utilisateur
 from app.models.historique_statut import HistoriqueStatut
-from app.utils.mail import mail_confirmation_commande, mail_commande_terminee
+from app.utils.mail import mail_confirmation_commande, mail_commande_terminee, mail_retour_materiel
 from app.services.stats_service import enregistrer_commande_stats
 
 router = APIRouter(prefix="/commandes", tags=["commandes"])
@@ -76,7 +76,7 @@ def update_commande(
         raise HTTPException(status_code=403, detail="Vous ne pouvez modifier que vos propres commandes")
 
     if commande.statut != "en_attente":
-        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être modifiée (déjà acceptée ou traitée)")
+        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être modifiée")
 
     update_data = data.dict(exclude_unset=True)
     for key, value in update_data.items():
@@ -100,7 +100,7 @@ def annuler_commande_client(
         raise HTTPException(status_code=403, detail="Vous ne pouvez annuler que vos propres commandes")
 
     if commande.statut != "en_attente":
-        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être annulée (déjà acceptée ou traitée)")
+        raise HTTPException(status_code=400, detail="Cette commande ne peut plus être annulée")
 
     commande.statut = "annulee"
     db.commit()
@@ -157,15 +157,23 @@ def changer_statut(
     db.add(historique)
     db.commit()
 
-    if nouveau_statut == "terminee":
-        client = db.query(Utilisateur).filter(Utilisateur.id == commande.utilisateur_id).first()
-        if client:
-            background_tasks.add_task(
-                mail_commande_terminee,
-                client.email,
-                client.prenom,
-                commande.id
-            )
+    client = db.query(Utilisateur).filter(Utilisateur.id == commande.utilisateur_id).first()
+
+    if nouveau_statut == "terminee" and client:
+        background_tasks.add_task(
+            mail_commande_terminee,
+            client.email,
+            client.prenom,
+            commande.id
+        )
+
+    if nouveau_statut == "en_attente_retour_materiel" and client:
+        background_tasks.add_task(
+            mail_retour_materiel,
+            client.email,
+            client.prenom,
+            commande.id
+        )
 
     return commande
 
