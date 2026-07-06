@@ -1,12 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import utilisateur, role, theme, regime, allergene, type_plat, horaire, contact, menu, plat, image_menu, commande, historique_statut, avis, auth, stats
+from app.database import Base, engine
+from app import models
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Vite & Gourmand API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+allow_origins=[
+    "http://localhost:5173",
+    "https://zotpresta.re",
+    "https://www.zotpresta.re",
+    "https://api.zotpresta.re"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

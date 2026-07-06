@@ -11,6 +11,7 @@ MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
 MAIL_FROM = os.getenv("MAIL_FROM")
 MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")
 MAIL_PORT = int(os.getenv("MAIL_PORT", "587"))
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://zotpresta.re")
 
 def envoyer_mail(destinataire: str, sujet: str, contenu: str):
     try:
@@ -19,7 +20,6 @@ def envoyer_mail(destinataire: str, sujet: str, contenu: str):
         msg["To"] = destinataire
         msg["Subject"] = sujet
         msg.attach(MIMEText(contenu, "html"))
-
         with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
             server.starttls()
             server.login(MAIL_USERNAME, MAIL_PASSWORD)
@@ -55,6 +55,43 @@ def mail_commande_terminee(email: str, prenom: str, commande_id: int):
     <h2>Bonjour {prenom},</h2>
     <p>Votre commande <strong>#{commande_id}</strong> est terminée.</p>
     <p>Connectez-vous à votre espace pour laisser votre avis.</p>
+    <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
+    """
+    return envoyer_mail(email, sujet, contenu)
+
+def mail_reinitialisation_mdp(email: str, prenom: str, token: str):
+    sujet = "Réinitialisation de votre mot de passe"
+    lien = f"{FRONTEND_URL}/reinitialiser-mdp?token={token}"
+    contenu = f"""
+    <h2>Bonjour {prenom},</h2>
+    <p>Vous avez demandé la réinitialisation de votre mot de passe.</p>
+    <p>Cliquez sur le lien ci-dessous pour choisir un nouveau mot de passe (valable 1 heure) :</p>
+    <p><a href="{lien}">Réinitialiser mon mot de passe</a></p>
+    <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
+    <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
+    """
+    return envoyer_mail(email, sujet, contenu)
+
+def mail_employe_cree(email: str):
+    sujet = "Votre compte employé a été créé"
+    contenu = f"""
+    <h2>Bonjour,</h2>
+    <p>Un compte employé a été créé pour vous chez <strong>Vite & Gourmand</strong>.</p>
+    <p>Votre identifiant de connexion est : <strong>{email}</strong></p>
+    <p>Veuillez vous rapprocher de votre administrateur pour obtenir votre mot de passe.</p>
+    <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
+    """
+    return envoyer_mail(email, sujet, contenu)
+
+def mail_retour_materiel(email: str, prenom: str, commande_id: int):
+    sujet = "Retour du matériel — Vite & Gourmand"
+    contenu = f"""
+    <h2>Bonjour {prenom},</h2>
+    <p>Votre prestation pour la commande <strong>#{commande_id}</strong> est terminée.</p>
+    <p>Nous vous rappelons que du matériel vous a été prêté (tables, chaises).</p>
+    <p><strong>Vous disposez de 10 jours ouvrés pour le restituer.</strong></p>
+    <p>Passé ce délai, des frais de <strong>600€</strong> vous seront facturés, conformément à nos conditions générales de vente.</p>
+    <p>Pour organiser le retour du matériel, veuillez nous contacter via notre formulaire de contact ou par téléphone.</p>
     <p>À bientôt,<br>L'équipe Vite & Gourmand</p>
     """
     return envoyer_mail(email, sujet, contenu)

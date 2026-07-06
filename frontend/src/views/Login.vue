@@ -3,7 +3,6 @@
     <div class="login-card">
         <h1>Connexion</h1>
         <div v-if="erreur" class="erreur">{{ erreur }}</div>
-
         <form @submit.prevent="login">
             <div class="champ">
                 <label>Email</label>
@@ -22,7 +21,9 @@
                 {{ chargement ? 'Connexion...' : 'Se connecter' }}
             </button>
         </form>
-
+        <p class="lien">
+            <RouterLink to="/mot-de-passe-oublie">Mot de passe oublié ?</RouterLink>
+        </p>
         <p class="lien">
             Pas encore de compte ?
             <RouterLink to="/register">S'inscrire</RouterLink>
@@ -50,6 +51,7 @@ const motDePasse = ref('')
 const erreur = ref('')
 const chargement = ref(false)
 const showPassword = ref(false)
+
 async function login() {
     erreur.value = ''
     chargement.value = true

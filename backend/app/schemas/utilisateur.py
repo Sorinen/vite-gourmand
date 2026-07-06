@@ -20,3 +20,8 @@ class Utilisateur(UtilisateurBase):
 
     class Config:
         from_attributes = True
+class UtilisateurUpdate(BaseModel):
+    nom: Optional[str] = None
+    prenom: Optional[str] = None
+    telephone: Optional[str] = None
+    adresse_postale: Optional[str] = None

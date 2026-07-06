@@ -11,7 +11,6 @@ def get_commande(db: Session, commande_id: int):
 def get_commande_by_utilisateur_id(db: Session, utilisateur_id: int):
     return db.query(Commande).filter(Commande.utilisateur_id == utilisateur_id).first()
 
-
 def create_commande(db: Session, commande: CommandeCreate):
     db_commande = Commande(
         date_prestation=commande.date_prestation,
@@ -31,4 +30,4 @@ def create_commande(db: Session, commande: CommandeCreate):
     db.add(db_commande)
     db.commit()
     db.refresh(db_commande)
-    return db_commande  
+    return db_commande
