@@ -1,17 +1,15 @@
-# Vite & Gourmand 🍽️
+# Vite & Gourmand 
 
 Application web de traiteur événementiel à La Réunion.
 
-## 🌐 Démo en ligne
+## Démo en ligne
 
 - **Frontend** : https://zotpresta.re
 - **API** : https://api.zotpresta.re/docs
 
 ---
 
-## 📋 Description
-
-## 📋 Description
+##  Description
 
 Vite & Gourmand est une application web fullstack développée pour Julie et José, un couple de traiteurs événementiels basés à Bordeaux. 
 
@@ -19,7 +17,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-## 🚀 Fonctionnalités
+## Fonctionnalités
 
 ### Côté client
 - Consultation des menus avec filtres (thème, régime)
@@ -41,7 +39,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-## 🛠️ Stack technique
+## Stack technique
 
 ### Frontend
 - Vue.js 3 (Composition API)
@@ -67,7 +65,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-## ⚙️ Installation locale
+## Installation locale
 
 ### Prérequis
 - Docker Desktop
@@ -105,7 +103,7 @@ npm run dev
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 vite-gourmand/
 
@@ -142,7 +140,7 @@ Statistiques des commandes par menu (chiffre d'affaires, nombre de commandes)
 
 ---
 
-## 🔐 Sécurité
+##  Sécurité
 - Authentification JWT (HS256, 8h)
 - Hashage des mots de passe (bcrypt)
 - Protection des routes par rôle (Admin, Employé, Client)
@@ -150,6 +148,6 @@ Statistiques des commandes par menu (chiffre d'affaires, nombre de commandes)
 
 ---
 
-## 👨‍💻 Auteur
+##  Auteur
 
 Projet réalisé dans le cadre du **TP Développeur Web et Web Mobile** (Studi ECF 2026).
