@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.routes import utilisateur, role, theme, regime, allergene, type_plat, horaire, contact, menu, plat, image_menu, commande, historique_statut, avis, auth, stats
 from app.database import Base, engine
 from app import models
+from app.utils.jwt import get_secret_key
+
+get_secret_key()  # echec au demarrage si SECRET_KEY absente ou vide
 
 Base.metadata.create_all(bind=engine)
 

@@ -127,6 +127,26 @@ CREATE TABLE "contact" (
   "created_at" timestamp
 );
 
+-- Données initiales
+INSERT INTO role (libelle) VALUES ('Administrateur'), ('employé'), ('Client');
+
+INSERT INTO theme (libelle) VALUES ('Classique'), ('Noël'), ('Pâques'), ('Événement'), ('Barbecue'), ('Mariage');
+
+INSERT INTO regime (libelle) VALUES ('Classique'), ('Végétarien'), ('Vegan'), ('Sans gluten');
+
+INSERT INTO allergene (libelle) VALUES ('Gluten'), ('Lactose'), ('Fruits à coque'), ('Oeufs'), ('Poisson'), ('Soja');
+
+INSERT INTO type_plat (libelle) VALUES ('Entrée'), ('Plat principal'), ('Dessert');
+
+INSERT INTO horaire (jour, heure_ouverture, heure_fermeture, ferme) VALUES
+('Lundi', '08:00', '18:00', false),
+('Mardi', '08:00', '18:00', false),
+('Mercredi', '08:00', '18:00', false),
+('Jeudi', '08:00', '18:00', false),
+('Vendredi', '08:00', '18:00', false),
+('Samedi', '08:00', '16:00', false),
+('Dimanche', '00:00', '00:00', true);
+
 ALTER TABLE "utilisateur" ADD FOREIGN KEY ("role_id") REFERENCES "role" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "menu" ADD FOREIGN KEY ("theme_id") REFERENCES "theme" ("id") DEFERRABLE INITIALLY IMMEDIATE;
@@ -156,3 +176,9 @@ ALTER TABLE "historique_statut" ADD FOREIGN KEY ("modifie_par") REFERENCES "util
 ALTER TABLE "avis" ADD FOREIGN KEY ("commande_id") REFERENCES "commande" ("id") DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE "avis" ADD FOREIGN KEY ("utilisateur_id") REFERENCES "utilisateur" ("id") DEFERRABLE INITIALLY IMMEDIATE;
+
+ALTER TABLE utilisateur ADD COLUMN IF NOT EXISTS reset_token VARCHAR;
+
+ALTER TABLE utilisateur ADD COLUMN IF NOT EXISTS reset_token_expiration TIMESTAMP WITH TIME ZONE;
+
+ALTER TABLE avis ADD COLUMN IF NOT EXISTS menu_id INTEGER REFERENCES menu(id);

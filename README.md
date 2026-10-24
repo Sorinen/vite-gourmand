@@ -1,6 +1,6 @@
 # Vite & Gourmand 
 
-Application web de traiteur événementiel à La Réunion.
+Application web de traiteur événementiel à Bordeaux.
 
 ## Démo en ligne
 
@@ -9,7 +9,7 @@ Application web de traiteur événementiel à La Réunion.
 
 ---
 
-## Description
+##  Description
 
 Vite & Gourmand est une application web fullstack développée pour Julie et José, un couple de traiteurs événementiels basés à Bordeaux. 
 
@@ -17,7 +17,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-##  Fonctionnalités
+## Fonctionnalités
 
 ### Côté client
 - Consultation des menus avec filtres (thème, régime)
@@ -39,7 +39,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-##  Stack technique
+## Stack technique
 
 ### Frontend
 - Vue.js 3 (Composition API)
@@ -65,7 +65,7 @@ L'application permet à leurs clients de consulter les menus proposés, passer d
 
 ---
 
-##  Installation locale
+## Installation locale
 
 ### Prérequis
 - Docker Desktop
@@ -97,13 +97,12 @@ npm install
 npm run dev
 ```
 
-### Compte admin par défaut
-- **Email** : admin@traiteur.re
-- **Mot de passe** : AdminSecret123!
+### Compte admin
+Créer le compte administrateur via les données initiales (`docs/data_initiales.sql`) puis **changer immédiatement son mot de passe**. Ne jamais publier d'identifiants dans le dépôt.
 
 ---
 
-##  Architecture
+## Architecture
 
 vite-gourmand/
 
@@ -141,7 +140,7 @@ Statistiques des commandes par menu (chiffre d'affaires, nombre de commandes)
 ---
 
 ##  Sécurité
-- Authentification JWT (HS256, 8h)
+- Authentification JWT (HS256, 60 min)
 - Hashage des mots de passe (bcrypt)
 - Protection des routes par rôle (Admin, Employé, Client)
 - CORS configuré
