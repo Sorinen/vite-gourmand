@@ -1,6 +1,6 @@
 # Vite & Gourmand 
 
-Application web de traiteur événementiel à La Réunion.
+Application web de traiteur événementiel à Bordeaux.
 
 ## Démo en ligne
 
@@ -97,9 +97,8 @@ npm install
 npm run dev
 ```
 
-### Compte admin par défaut
-- **Email** : admin@traiteur.re
-- **Mot de passe** : AdminSecret123!
+### Compte admin
+Créer le compte administrateur via les données initiales (`docs/data_initiales.sql`) puis **changer immédiatement son mot de passe**. Ne jamais publier d'identifiants dans le dépôt.
 
 ---
 
@@ -141,7 +140,7 @@ Statistiques des commandes par menu (chiffre d'affaires, nombre de commandes)
 ---
 
 ##  Sécurité
-- Authentification JWT (HS256, 8h)
+- Authentification JWT (HS256, 60 min)
 - Hashage des mots de passe (bcrypt)
 - Protection des routes par rôle (Admin, Employé, Client)
 - CORS configuré
