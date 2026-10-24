@@ -141,15 +141,18 @@
     </section>
     <section class="cta">
         <div class="container">
-            <h2>
-                Organisez votre prochain événement avec nous
-            </h2>
-            <p>
-                Découvrez nos menus et trouvez la formule idéale pour vos invités.
-            </p>
-            <RouterLink to="/menus" class="btn-light">
-                Voir tous les menus
-            </RouterLink>
+            <h2>Ce que disent nos clients</h2>
+            <div class="avis-grid" v-if="avisValides.length">
+                <div class="avis-card" v-for="a in avisValides" :key="a.id">
+                    <div class="avis-menu">{{ nomMenu(a.menu_id) }}</div>
+                    <div class="avis-etoiles">
+                        {{ '★'.repeat(a.note) }}{{ '☆'.repeat(5 - a.note) }}
+                    </div>
+                    <p class="avis-commentaire">{{ a.commentaire }}</p>
+                    <div class="avis-auteur">{{ a.auteur }}</div>
+                </div>
+            </div>
+            <p v-else>Aucun avis pour le moment.</p>
         </div>
     </section>
 </div>
@@ -158,12 +161,22 @@
 <script setup>
 import {
     ref,
+    computed,
     onMounted
 } from 'vue'
 import api from '../services/api'
 
 const menus = ref([])
 const avis = ref([])
+
+const avisValides = computed(() =>
+    avis.value.filter(a => a.statut === 'valide' && a.menu_id).slice(0, 6)
+)
+
+function nomMenu(menuId) {
+    const m = menus.value.find(m => Number(m.id) === Number(menuId))
+    return m ? m.titre : ''
+}
 
 function getAvisMenu(menuId) {
     return avis.value.filter(
@@ -608,6 +621,47 @@ h2::after {
     margin: 0 auto 40px;
     line-height: 1.9;
     color: rgba(255, 255, 255, .9);
+}
+
+.avis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 40px auto 0;
+    text-align: left;
+}
+
+.avis-card {
+    background: white;
+    color: #333;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, .18);
+}
+
+.avis-menu {
+    font-weight: 700;
+    color: #1D9E75;
+    margin-bottom: 6px;
+}
+
+.avis-etoiles {
+    color: #f5b301;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.avis-commentaire {
+    color: #444 !important;
+    margin: 0 0 14px !important;
+    max-width: none !important;
+    line-height: 1.6 !important;
+}
+
+.avis-auteur {
+    font-weight: 600;
+    color: #666;
 }
 
 .btn-light {
