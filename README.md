@@ -129,7 +129,7 @@ vite-gourmand/
 
 ---
 
-## 🗄️ Base de données
+##  Base de données
 
 ### PostgreSQL — 16 entités
 ROLE, UTILISATEUR, THEME, REGIME, ALLERGENE, TYPE_PLAT, MENU, PLAT, IMAGE_MENU, MENU_PLAT, PLAT_ALLERGENE, COMMANDE, HISTORIQUE_STATUT, AVIS, HORAIRE, CONTACT
