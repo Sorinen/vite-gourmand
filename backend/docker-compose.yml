@@ -1,3 +1,9 @@
+# DEVELOPPEMENT LOCAL UNIQUEMENT - ne pas utiliser en production.
+# Les ports sont lies a 127.0.0.1 (numeros inchanges) pour ne pas exposer les bases sur le reseau.
+# MongoDB n'a pas d'authentification ici : acceptable seulement tant que le port reste en 127.0.0.1.
+# Pour tout autre usage, definir MONGO_INITDB_ROOT_USERNAME / MONGO_INITDB_ROOT_PASSWORD
+# et utiliser mongodb://user:pass@host:27017/?authSource=admin dans MONGO_URL.
+
 version: '3.8'
 
 services:
@@ -9,7 +15,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: vite_gourmand
     ports:
-      - "5434:5432"
+      - "127.0.0.1:5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -17,7 +23,7 @@ services:
     image: mongo:7
     container_name: vite_gourmand_mongo
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     volumes:
       - mongo_data:/data/db
 

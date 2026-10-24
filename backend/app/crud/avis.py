@@ -1,9 +1,17 @@
 from sqlalchemy.orm import Session
 from app.models.avis import Avis
+from app.models.utilisateur import Utilisateur
 from app.schemas.avis import AvisCreate
 
 def get_all_avis(db: Session):
-    return db.query(Avis).all()
+    rows = db.query(Avis, Utilisateur.prenom, Utilisateur.nom).join(
+        Utilisateur, Utilisateur.id == Avis.utilisateur_id
+    ).all()
+    result = []
+    for avis, prenom, nom in rows:
+        avis.auteur = f"{prenom} {nom[:1]}." if nom else prenom
+        result.append(avis)
+    return result
 
 def get_avis_by_id(db: Session, avis_id: int):
     return db.query(Avis).filter(Avis.id == avis_id).first()

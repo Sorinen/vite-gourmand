@@ -17,6 +17,7 @@ class Avis(AvisBase):
     commande_id: int
     utilisateur_id: int
     menu_id: Optional[int] = None
+    auteur: Optional[str] = None
     created_at: Optional[datetime] = None
     class Config:
         from_attributes = True
